@@ -742,6 +742,549 @@ get_kb_placeholders() {
     echo "COMPLIANCE_REPORT_PATH: ${COMPLIANCE_REPORT_PATH:-'Not set'}"
 }
 
+# =============================================================================
+# DIRECTORY STRUCTURE FUNCTIONS FOR PLAN INTEGRATION
+# =============================================================================
+
+# Get directory structure based on technology stack and architecture patterns
+# Usage: get_directory_structure <tech_stack> <architecture_pattern>
+# Returns: Directory structure template based on KB patterns
+get_directory_structure() {
+    local tech_stack="$1"
+    local architecture_pattern="${2:-clean-architecture}"
+    
+    if [[ -z "$tech_stack" ]]; then
+        echo "ERROR: get_directory_structure requires tech_stack parameter" >&2
+        return 1
+    fi
+    
+    # Detect project type and return appropriate structure
+    case "$tech_stack" in
+        *"next.js"*|*"nextjs"*)
+            get_nextjs_structure "$architecture_pattern"
+            ;;
+        *"remix"*)
+            get_remix_structure "$architecture_pattern"
+            ;;
+        *"react"*|*"frontend"*)
+            get_react_structure "$architecture_pattern"
+            ;;
+        *"backend"*|*"api"*|*"server"*)
+            get_backend_structure "$architecture_pattern"
+            ;;
+        *"web"*|*"fullstack"*)
+            get_fullstack_structure "$architecture_pattern"
+            ;;
+        *"mobile"*)
+            get_mobile_structure "$architecture_pattern"
+            ;;
+        *)
+            get_default_structure "$architecture_pattern"
+            ;;
+    esac
+}
+
+# Get Next.js directory structure with Clean Architecture
+get_nextjs_structure() {
+    local pattern="$1"
+    
+    case "$pattern" in
+        *"ddd"*|*"domain-driven"*)
+            cat << 'EOF'
+# Next.js + Clean Architecture + DDD Structure
+app/                          # Next.js 13+ App Router
+├── (auth)/                   # Route groups
+├── api/                      # API routes
+│   └── [domain]/            # Domain-based API organization
+├── [locale]/                # Internationalization
+└── globals.css              # Global styles
+
+src/
+├── application/             # Application Layer (Use Cases)
+│   ├── use-cases/          # Business use cases
+│   ├── ports/              # Interfaces/Contracts
+│   └── services/           # Application services
+├── domain/                  # Domain Layer (Business Logic)
+│   ├── entities/           # Domain entities
+│   ├── value-objects/      # Value objects
+│   ├── aggregates/         # Domain aggregates
+│   └── repositories/       # Repository interfaces
+├── infrastructure/         # Infrastructure Layer
+│   ├── database/           # Database implementations
+│   ├── external/           # External service adapters
+│   └── repositories/       # Repository implementations
+├── presentation/           # Presentation Layer
+│   ├── components/         # React components
+│   ├── hooks/              # Custom hooks
+│   ├── pages/              # Page components
+│   └── layouts/            # Layout components
+└── shared/                 # Shared utilities
+    ├── types/              # TypeScript types
+    ├── utils/              # Utility functions
+    └── constants/          # Application constants
+EOF
+            ;;
+        *)
+            cat << 'EOF'
+# Next.js + Clean Architecture Structure
+app/                          # Next.js 13+ App Router
+├── (dashboard)/             # Route groups
+├── api/                     # API routes
+├── globals.css              # Global styles
+└── layout.tsx               # Root layout
+
+src/
+├── components/              # Reusable UI components
+│   ├── ui/                 # Base UI components
+│   ├── forms/              # Form components
+│   └── layout/             # Layout components
+├── lib/                    # Core business logic
+│   ├── actions/            # Server actions
+│   ├── data/               # Data access layer
+│   ├── validations/        # Input validation schemas
+│   └── utils/              # Utility functions
+├── hooks/                  # Custom React hooks
+├── types/                  # TypeScript type definitions
+└── styles/                 # Styling files
+    ├── globals.css         # Global styles
+    └── components.css      # Component styles
+EOF
+            ;;
+    esac
+}
+
+# Get Remix directory structure with Clean Architecture
+get_remix_structure() {
+    local pattern="$1"
+    
+    case "$pattern" in
+        *"ddd"*|*"domain-driven"*)
+            cat << 'EOF'
+# Remix + Clean Architecture + DDD Structure
+app/
+├── routes/                  # Remix routes
+│   ├── _index.tsx          # Home route
+│   ├── [domain]/           # Domain-based route organization
+│   └── api/                # API routes
+├── components/             # React components
+│   ├── ui/                 # Base UI components
+│   └── domain/             # Domain-specific components
+├── lib/                    # Core application logic
+│   ├── application/        # Application Layer
+│   │   ├── use-cases/      # Business use cases
+│   │   └── services/       # Application services
+│   ├── domain/             # Domain Layer
+│   │   ├── entities/       # Domain entities
+│   │   ├── aggregates/     # Domain aggregates
+│   │   └── repositories/   # Repository interfaces
+│   ├── infrastructure/     # Infrastructure Layer
+│   │   ├── database/       # Database implementations
+│   │   └── repositories/   # Repository implementations
+│   └── shared/             # Shared utilities
+├── styles/                 # CSS files
+└── utils/                  # Utility functions
+EOF
+            ;;
+        *)
+            cat << 'EOF'
+# Remix + Clean Architecture Structure
+app/
+├── routes/                  # Remix routes
+│   ├── _index.tsx          # Home route
+│   ├── dashboard/          # Dashboard routes
+│   └── api/                # API routes
+├── components/             # React components
+│   ├── ui/                 # Base UI components
+│   ├── forms/              # Form components
+│   └── layout/             # Layout components
+├── lib/                    # Core application logic
+│   ├── db/                 # Database utilities
+│   ├── auth/               # Authentication logic
+│   ├── validations/        # Input validation
+│   └── utils/              # Utility functions
+├── styles/                 # CSS files
+├── types/                  # TypeScript types
+└── utils/                  # Shared utilities
+EOF
+            ;;
+    esac
+}
+
+# Get React (pure) directory structure with Clean Architecture
+get_react_structure() {
+    local pattern="$1"
+    
+    case "$pattern" in
+        *"ddd"*|*"domain-driven"*)
+            cat << 'EOF'
+# React + Clean Architecture + DDD Structure
+src/
+├── application/             # Application Layer
+│   ├── use-cases/          # Business use cases
+│   ├── ports/              # Interfaces/Contracts
+│   └── services/           # Application services
+├── domain/                  # Domain Layer
+│   ├── entities/           # Domain entities
+│   ├── value-objects/      # Value objects
+│   ├── aggregates/         # Domain aggregates
+│   └── repositories/       # Repository interfaces
+├── infrastructure/         # Infrastructure Layer
+│   ├── api/                # API client implementations
+│   ├── storage/            # Storage implementations
+│   └── repositories/       # Repository implementations
+├── presentation/           # Presentation Layer
+│   ├── components/         # React components
+│   │   ├── ui/             # Base UI components
+│   │   ├── forms/          # Form components
+│   │   └── domain/         # Domain-specific components
+│   ├── hooks/              # Custom hooks
+│   ├── pages/              # Page components
+│   └── layouts/            # Layout components
+└── shared/                 # Shared utilities
+    ├── types/              # TypeScript types
+    ├── utils/              # Utility functions
+    └── constants/          # Application constants
+EOF
+            ;;
+        *)
+            cat << 'EOF'
+# React + Clean Architecture Structure
+src/
+├── components/              # React components
+│   ├── ui/                 # Base UI components
+│   ├── forms/              # Form components
+│   ├── layout/             # Layout components
+│   └── common/             # Common components
+├── hooks/                  # Custom React hooks
+├── services/               # API and business logic
+│   ├── api/                # API client
+│   ├── auth/               # Authentication
+│   └── data/               # Data management
+├── utils/                  # Utility functions
+├── types/                  # TypeScript type definitions
+├── constants/              # Application constants
+├── styles/                 # Styling files
+└── assets/                 # Static assets
+    ├── images/             # Image files
+    └── icons/              # Icon files
+EOF
+            ;;
+    esac
+}
+
+# Get backend directory structure with Clean Architecture
+get_backend_structure() {
+    local pattern="$1"
+    
+    case "$pattern" in
+        *"ddd"*|*"domain-driven"*)
+            cat << 'EOF'
+# Backend + Clean Architecture + DDD Structure
+src/
+├── application/             # Application Layer
+│   ├── use-cases/          # Business use cases
+│   ├── ports/              # Interfaces/Contracts
+│   ├── services/           # Application services
+│   └── dto/                # Data Transfer Objects
+├── domain/                  # Domain Layer
+│   ├── entities/           # Domain entities
+│   ├── value-objects/      # Value objects
+│   ├── aggregates/         # Domain aggregates
+│   ├── repositories/       # Repository interfaces
+│   ├── services/           # Domain services
+│   └── events/             # Domain events
+├── infrastructure/         # Infrastructure Layer
+│   ├── database/           # Database implementations
+│   │   ├── repositories/   # Repository implementations
+│   │   ├── migrations/     # Database migrations
+│   │   └── seeders/        # Database seeders
+│   ├── external/           # External service adapters
+│   ├── messaging/          # Message queue implementations
+│   └── config/             # Configuration
+├── presentation/           # Presentation Layer
+│   ├── controllers/        # HTTP controllers
+│   ├── middleware/         # HTTP middleware
+│   ├── routes/             # Route definitions
+│   └── validators/         # Input validators
+└── shared/                 # Shared utilities
+    ├── types/              # TypeScript types
+    ├── utils/              # Utility functions
+    ├── constants/          # Application constants
+    └── exceptions/         # Custom exceptions
+EOF
+            ;;
+        *)
+            cat << 'EOF'
+# Backend + Clean Architecture Structure
+src/
+├── controllers/             # HTTP controllers
+├── services/               # Business logic services
+├── models/                 # Data models
+├── repositories/           # Data access layer
+├── middleware/             # HTTP middleware
+├── routes/                 # Route definitions
+├── utils/                  # Utility functions
+├── types/                  # TypeScript types
+├── config/                 # Configuration files
+└── validators/             # Input validation
+
+tests/
+├── unit/                   # Unit tests
+├── integration/            # Integration tests
+└── e2e/                    # End-to-end tests
+EOF
+            ;;
+    esac
+}
+
+# Get fullstack (web) directory structure
+get_fullstack_structure() {
+    local pattern="$1"
+    
+    case "$pattern" in
+        *"ddd"*|*"domain-driven"*)
+            cat << 'EOF'
+# Fullstack + Clean Architecture + DDD Structure
+backend/
+├── src/
+│   ├── application/        # Application Layer
+│   ├── domain/             # Domain Layer
+│   ├── infrastructure/     # Infrastructure Layer
+│   └── presentation/       # Presentation Layer
+└── tests/
+
+frontend/
+├── src/
+│   ├── application/        # Application Layer
+│   ├── domain/             # Domain Layer (client-side)
+│   ├── infrastructure/     # Infrastructure Layer
+│   └── presentation/       # Presentation Layer
+└── tests/
+
+shared/                     # Shared types and utilities
+├── types/                  # Common TypeScript types
+├── constants/              # Shared constants
+└── utils/                  # Shared utility functions
+EOF
+            ;;
+        *)
+            cat << 'EOF'
+# Fullstack + Clean Architecture Structure
+backend/
+├── src/
+│   ├── controllers/        # HTTP controllers
+│   ├── services/           # Business logic
+│   ├── models/             # Data models
+│   ├── routes/             # API routes
+│   └── utils/              # Utilities
+└── tests/
+
+frontend/
+├── src/
+│   ├── components/         # React components
+│   ├── services/           # API services
+│   ├── hooks/              # Custom hooks
+│   ├── utils/              # Utilities
+│   └── types/              # TypeScript types
+└── tests/
+
+shared/                     # Shared code
+├── types/                  # Common types
+└── utils/                  # Shared utilities
+EOF
+            ;;
+    esac
+}
+
+# Get mobile directory structure
+get_mobile_structure() {
+    local pattern="$1"
+    
+    cat << 'EOF'
+# Mobile + API Structure
+api/
+├── src/
+│   ├── controllers/        # API controllers
+│   ├── services/           # Business logic
+│   ├── models/             # Data models
+│   └── routes/             # API routes
+└── tests/
+
+mobile/
+├── src/
+│   ├── components/         # UI components
+│   ├── screens/            # Screen components
+│   ├── navigation/         # Navigation setup
+│   ├── services/           # API services
+│   ├── hooks/              # Custom hooks
+│   ├── utils/              # Utilities
+│   └── types/              # TypeScript types
+└── tests/
+EOF
+}
+
+# Get default directory structure
+get_default_structure() {
+    local pattern="$1"
+    
+    case "$pattern" in
+        *"ddd"*|*"domain-driven"*)
+            cat << 'EOF'
+# Default + Clean Architecture + DDD Structure
+src/
+├── application/             # Application Layer
+│   ├── use-cases/          # Business use cases
+│   └── services/           # Application services
+├── domain/                  # Domain Layer
+│   ├── entities/           # Domain entities
+│   ├── repositories/       # Repository interfaces
+│   └── services/           # Domain services
+├── infrastructure/         # Infrastructure Layer
+│   ├── repositories/       # Repository implementations
+│   └── external/           # External integrations
+└── shared/                 # Shared utilities
+    ├── types/              # TypeScript types
+    └── utils/              # Utility functions
+
+tests/
+├── unit/                   # Unit tests
+├── integration/            # Integration tests
+└── contract/               # Contract tests
+EOF
+            ;;
+        *)
+            cat << 'EOF'
+# Default + Clean Architecture Structure
+src/
+├── models/                 # Data models
+├── services/               # Business logic
+├── controllers/            # Controllers/Handlers
+├── utils/                  # Utility functions
+├── types/                  # TypeScript types
+└── config/                 # Configuration
+
+tests/
+├── unit/                   # Unit tests
+├── integration/            # Integration tests
+└── contract/               # Contract tests
+EOF
+            ;;
+    esac
+}
+
+# Detect architecture pattern from project context
+# Usage: detect_architecture_pattern <project_context>
+# Returns: Architecture pattern (clean-architecture, ddd, etc.)
+detect_architecture_pattern() {
+    local project_context="$1"
+    
+    # Check for DDD indicators
+    if echo "$project_context" | grep -qi "domain\|ddd\|bounded.*context\|aggregate"; then
+        echo "ddd"
+        return 0
+    fi
+    
+    # Default to clean architecture
+    echo "clean-architecture"
+}
+
+# Generate structure decision based on technical context
+# Usage: generate_structure_decision <tech_context>
+# Returns: Structure decision with KB justification
+generate_structure_decision() {
+    local tech_context="$1"
+    
+    if [[ -z "$tech_context" ]]; then
+        echo "ERROR: generate_structure_decision requires tech_context parameter" >&2
+        return 1
+    fi
+    
+    local structure_type="single"
+    local architecture_pattern="clean-architecture"
+    
+    # Detect project type
+    if echo "$tech_context" | grep -qi "frontend.*backend\|web.*application\|fullstack"; then
+        structure_type="web"
+    elif echo "$tech_context" | grep -qi "mobile\|ios\|android"; then
+        structure_type="mobile"
+    fi
+    
+    # Detect architecture pattern
+    architecture_pattern=$(detect_architecture_pattern "$tech_context")
+    
+    # Generate decision with KB justification
+    cat << EOF
+**Structure Decision**: Option $(get_structure_option_number "$structure_type") - $structure_type application
+
+**KB Justification**:
+- **Architecture Pattern**: $architecture_pattern (detected from context)
+- **Clean Architecture**: Mandatory for all projects (KB requirement)
+- **Domain Organization**: $(get_domain_organization_justification "$architecture_pattern")
+- **Technology Stack**: $(get_tech_stack_justification "$tech_context")
+
+**Applied KB Patterns**:
+- shared-principles/clean-architecture/dependency-rule.md
+- shared-principles/clean-architecture/patterns.md
+$(get_context_specific_patterns "$structure_type" "$architecture_pattern")
+EOF
+}
+
+# Helper functions for structure decision generation
+get_structure_option_number() {
+    case "$1" in
+        "single") echo "1" ;;
+        "web") echo "2" ;;
+        "mobile") echo "3" ;;
+        *) echo "1" ;;
+    esac
+}
+
+get_domain_organization_justification() {
+    case "$1" in
+        "ddd")
+            echo "Domain-Driven Design with bounded contexts and aggregates"
+            ;;
+        *)
+            echo "Clean Architecture with clear layer separation"
+            ;;
+    esac
+}
+
+get_tech_stack_justification() {
+    local tech_context="$1"
+    
+    if echo "$tech_context" | grep -qi "next.js"; then
+        echo "Next.js detected - using App Router with Clean Architecture"
+    elif echo "$tech_context" | grep -qi "remix"; then
+        echo "Remix detected - using route-based organization with Clean Architecture"
+    elif echo "$tech_context" | grep -qi "react"; then
+        echo "React detected - using component-based architecture"
+    else
+        echo "Standard Clean Architecture organization"
+    fi
+}
+
+get_context_specific_patterns() {
+    local structure_type="$1"
+    local architecture_pattern="$2"
+    
+    case "$structure_type" in
+        "web")
+            echo "- frontend/ui-architecture/component-architecture.md"
+            echo "- backend/domain-modeling/strategic-design.md"
+            ;;
+        "mobile")
+            echo "- frontend/ui-architecture/component-architecture.md"
+            echo "- backend/api-design/ (for API integration)"
+            ;;
+        *)
+            if [[ "$architecture_pattern" == "ddd" ]]; then
+                echo "- backend/domain-modeling/strategic-design.md"
+            fi
+            ;;
+    esac
+}
+
 # Main function for direct script execution
 main() {
     case "${1:-}" in
@@ -789,19 +1332,43 @@ main() {
         "get-placeholders")
             get_kb_placeholders
             ;;
+        "directory-structure")
+            if [[ $# -lt 2 ]]; then
+                echo "Usage: $0 directory-structure <tech_stack> [architecture_pattern]"
+                exit 1
+            fi
+            get_directory_structure "$2" "${3:-clean-architecture}"
+            ;;
+        "structure-decision")
+            if [[ $# -lt 2 ]]; then
+                echo "Usage: $0 structure-decision <tech_context>"
+                exit 1
+            fi
+            generate_structure_decision "$2"
+            ;;
+        "detect-pattern")
+            if [[ $# -lt 2 ]]; then
+                echo "Usage: $0 detect-pattern <project_context>"
+                exit 1
+            fi
+            detect_architecture_pattern "$2"
+            ;;
         *)
             echo "Knowledge Base Integration Module v1.0"
-            echo "Usage: $0 {status|clear-cache|query|validate|principles|report|init-placeholders|get-placeholders}"
+            echo "Usage: $0 {status|clear-cache|query|validate|principles|report|init-placeholders|get-placeholders|directory-structure|structure-decision|detect-pattern}"
             echo
             echo "Commands:"
-            echo "  status                     - Show KB integration status"
-            echo "  clear-cache               - Clear KB query cache"
-            echo "  query <context> <query>   - Query KB for specific context"
-            echo "  validate <file> <context> - Validate file against KB patterns"
-            echo "  principles <domain>       - Get applicable principles for domain"
-            echo "  report <phase>           - Generate compliance report for phase"
-            echo "  init-placeholders <phase> - Initialize KB placeholders for template substitution"
-            echo "  get-placeholders          - Show current KB placeholder values"
+            echo "  status                           - Show KB integration status"
+            echo "  clear-cache                     - Clear KB query cache"
+            echo "  query <context> <query>         - Query KB for specific context"
+            echo "  validate <file> <context>       - Validate file against KB patterns"
+            echo "  principles <domain>             - Get applicable principles for domain"
+            echo "  report <phase>                  - Generate compliance report for phase"
+            echo "  init-placeholders <phase>       - Initialize KB placeholders for template substitution"
+            echo "  get-placeholders                - Show current KB placeholder values"
+            echo "  directory-structure <tech> [pattern] - Get directory structure for tech stack"
+            echo "  structure-decision <context>    - Generate structure decision with KB justification"
+            echo "  detect-pattern <context>        - Detect architecture pattern from context"
             ;;
     esac
 }

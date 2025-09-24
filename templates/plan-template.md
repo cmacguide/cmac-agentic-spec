@@ -22,8 +22,8 @@ scripts:
 ```
 1. **KB Integration Setup** (MANDATORY):
    → Source scripts/bash/knowledge-base-integration.sh
-   → KB_CONTEXT=$(get_applicable_principles "architect")
-   → KB_REFERENCE=$(query_knowledge_base "shared-principles" "architecture design patterns")
+   → KB_CONTEXT=$(get_applicable_principles "plan")
+   → KB_REFERENCE=$(query_knowledge_base "shared-principles" "architecture design patterns best practices")
    → VALIDATION_RESULT=$(validate_against_patterns "$INPUT_SPEC" "shared-principles")
    → If KB unavailable: Continue with fallback guidance, note limitation
 
@@ -31,10 +31,15 @@ scripts:
    → If not found: ERROR "No feature spec at {path}"
    → Cross-reference with KB architectural patterns
 
-3. Fill Technical Context (scan for NEEDS CLARIFICATION)
+3. **Fill Technical Context with KB-Enhanced Structure Generation** (scan for NEEDS CLARIFICATION):
    → Detect Project Type from context (web=frontend+backend, mobile=app+api)
-   → Set Structure Decision based on project type
+   → **KB Enhancement**: Extract tech stack from Technical Context
+   → **KB Enhancement**: TECH_STACK=$(extract_tech_stack_from_context "$TECHNICAL_CONTEXT")
+   → **KB Enhancement**: ARCHITECTURE_PATTERN=$(detect_architecture_pattern "$TECH_STACK")
+   → **KB Enhancement**: DYNAMIC_STRUCTURE=$(get_directory_structure "$TECH_STACK" "$ARCHITECTURE_PATTERN")
+   → **KB Enhancement**: STRUCTURE_DECISION=$(generate_structure_decision "$TECHNICAL_CONTEXT")
    → **Apply KB Context**: Validate tech choices against KB recommendations
+   → **Update Project Structure section**: Replace {DYNAMIC_STRUCTURE} and {STRUCTURE_DECISION} placeholders
 
 4. Fill the Constitution Check section based on the content of the constitution document.
    → **Enhanced with KB**: Cross-validate constitution against KB principles
@@ -139,45 +144,55 @@ specs/[###-feature]/
 └── tasks.md             # Phase 2 output (/tasks command - NOT created by /plan)
 ```
 
-### Source Code (repository root)
+### Source Code (repository root) - KB Enhanced Dynamic Structure
+
+**IMPORTANT**: This structure is dynamically generated based on Technical Context using Knowledge Base patterns.
+
+```bash
+# Generate dynamic structure based on tech stack and architecture pattern
+TECH_STACK="$(extract_tech_stack_from_context)"
+ARCHITECTURE_PATTERN="$(detect_architecture_pattern "$TECH_STACK")"
+DYNAMIC_STRUCTURE="$(get_directory_structure "$TECH_STACK" "$ARCHITECTURE_PATTERN")"
+```
+
+**Generated Structure**:
 
 ```
-# Option 1: Single project (DEFAULT)
+{DYNAMIC_STRUCTURE}
+```
+
+**KB Structure Generation Process**:
+
+1. **Technology Detection**: Analyze Technical Context for framework/language indicators
+2. **Architecture Pattern Detection**: Identify DDD, Clean Architecture, or other patterns
+3. **Structure Selection**: Choose appropriate template from KB patterns:
+   - Next.js + Clean Architecture (+ optional DDD)
+   - Remix + Clean Architecture (+ optional DDD)
+   - React + Clean Architecture (+ optional DDD)
+   - Backend + Clean Architecture (+ optional DDD)
+   - Fullstack + Clean Architecture (+ optional DDD)
+   - Mobile + API structure
+   - Default + Clean Architecture (+ optional DDD)
+
+**Fallback Structure** (if KB unavailable):
+
+```
+# Default Clean Architecture Structure
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+├── models/              # Data models
+├── services/            # Business logic
+├── controllers/         # Controllers/Handlers
+├── utils/               # Utility functions
+├── types/               # TypeScript types
+└── config/              # Configuration
 
 tests/
-├── contract/
-├── integration/
-└── unit/
-
-# Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure]
+├── unit/                # Unit tests
+├── integration/         # Integration tests
+└── contract/            # Contract tests
 ```
 
-**Structure Decision**: [DEFAULT to Option 1 unless Technical Context indicates web/mobile app]
+{STRUCTURE_DECISION}
 
 ## Phase 0: Outline & Research
 
