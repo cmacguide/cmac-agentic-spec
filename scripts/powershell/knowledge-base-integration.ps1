@@ -79,6 +79,8 @@ function Query-KnowledgeBase {
         Set-CachedKBResult -CacheKey $cacheKey -Result $result
     }
     
+    # Set KB_REFERENCE placeholder for template substitution
+    $env:KB_REFERENCE = $result
     return $result
 }
 
@@ -270,6 +272,8 @@ $(New-KBReferences -Phase $Phase)
     
     Set-Content -Path $reportFile -Value $reportContent -Encoding UTF8
     
+    # Set COMPLIANCE_REPORT_PATH placeholder for template substitution
+    $env:COMPLIANCE_REPORT_PATH = $reportFile
     return $reportFile
 }
 

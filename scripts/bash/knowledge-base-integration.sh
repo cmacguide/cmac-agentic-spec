@@ -11,6 +11,12 @@ source "$SCRIPT_DIR/common.sh"
 KB_CACHE_TTL=86400  # 24 hours in seconds
 KB_QUERY_TIMEOUT=10 # 10 seconds timeout for queries
 
+# KB Placeholder variables (exported for template substitution)
+export KB_REFERENCE=""
+export VALIDATION_RESULT=""
+export KB_CONTEXT=""
+export COMPLIANCE_REPORT_PATH=""
+
 # =============================================================================
 # CORE KB INTEGRATION FUNCTIONS
 # =============================================================================
@@ -65,6 +71,9 @@ query_knowledge_base() {
     fi
     
     echo "$result"
+    
+    # Set KB_REFERENCE placeholder for template substitution
+    export KB_REFERENCE="$result"
 }
 
 # Validate artifact against KB patterns
@@ -122,6 +131,9 @@ validate_against_patterns() {
     validation_results="VALIDATION SUMMARY: $overall_status\n\n$validation_results"
     
     echo -e "$validation_results"
+    
+    # Set VALIDATION_RESULT placeholder for template substitution
+    export VALIDATION_RESULT="$validation_results"
 }
 
 # Get applicable principles for domain/phase
@@ -177,6 +189,9 @@ get_applicable_principles() {
     esac
     
     echo "$principles"
+    
+    # Set KB_CONTEXT placeholder for template substitution
+    export KB_CONTEXT="$principles"
 }
 
 # Generate compliance report for specific phase
@@ -233,6 +248,9 @@ $(generate_kb_references "$phase")
 EOF
     
     echo "$report_file"
+    
+    # Set COMPLIANCE_REPORT_PATH placeholder for template substitution
+    export COMPLIANCE_REPORT_PATH="$report_file"
 }
 
 # =============================================================================
@@ -658,6 +676,72 @@ clear_kb_cache() {
     fi
 }
 
+# Initialize KB placeholders for template integration
+# Usage: init_kb_placeholders <phase>
+init_kb_placeholders() {
+    local phase="$1"
+    
+    if [[ -z "$phase" ]]; then
+        echo "ERROR: init_kb_placeholders requires phase parameter" >&2
+        return 1
+    fi
+    
+    # Get applicable principles and set KB_CONTEXT
+    local principles=$(get_applicable_principles "$phase")
+    export KB_CONTEXT="$principles"
+    
+    # Query KB for phase-specific guidance and set KB_REFERENCE
+    local kb_query=""
+    case "$phase" in
+        "analyze")
+            kb_query="architecture patterns consistency validation"
+            ;;
+        "architect"|"plan")
+            kb_query="architecture design patterns best practices"
+            ;;
+        "implement")
+            kb_query="coding standards implementation patterns"
+            ;;
+        *)
+            kb_query="general best practices"
+            ;;
+    esac
+    
+    local kb_reference=$(query_knowledge_base "shared-principles" "$kb_query")
+    export KB_REFERENCE="$kb_reference"
+    
+    # Initialize validation result placeholder
+    export VALIDATION_RESULT="KB patterns ready for validation"
+    
+    # Initialize compliance report path placeholder
+    export COMPLIANCE_REPORT_PATH=""
+    
+    echo "KB placeholders initialized for phase: $phase"
+}
+
+# Set KB validation result for template substitution
+# Usage: set_validation_result <result>
+set_validation_result() {
+    local result="$1"
+    export VALIDATION_RESULT="$result"
+}
+
+# Set compliance report path for template substitution
+# Usage: set_compliance_report_path <path>
+set_compliance_report_path() {
+    local path="$1"
+    export COMPLIANCE_REPORT_PATH="$path"
+}
+
+# Get all KB placeholders for debugging
+get_kb_placeholders() {
+    echo "=== KB Placeholders Status ==="
+    echo "KB_REFERENCE: ${KB_REFERENCE:-'Not set'}"
+    echo "VALIDATION_RESULT: ${VALIDATION_RESULT:-'Not set'}"
+    echo "KB_CONTEXT: ${KB_CONTEXT:-'Not set'}"
+    echo "COMPLIANCE_REPORT_PATH: ${COMPLIANCE_REPORT_PATH:-'Not set'}"
+}
+
 # Main function for direct script execution
 main() {
     case "${1:-}" in
@@ -695,9 +779,19 @@ main() {
             fi
             generate_compliance_report "$2"
             ;;
+        "init-placeholders")
+            if [[ $# -lt 2 ]]; then
+                echo "Usage: $0 init-placeholders <phase>"
+                exit 1
+            fi
+            init_kb_placeholders "$2"
+            ;;
+        "get-placeholders")
+            get_kb_placeholders
+            ;;
         *)
             echo "Knowledge Base Integration Module v1.0"
-            echo "Usage: $0 {status|clear-cache|query|validate|principles|report}"
+            echo "Usage: $0 {status|clear-cache|query|validate|principles|report|init-placeholders|get-placeholders}"
             echo
             echo "Commands:"
             echo "  status                     - Show KB integration status"
@@ -706,6 +800,8 @@ main() {
             echo "  validate <file> <context> - Validate file against KB patterns"
             echo "  principles <domain>       - Get applicable principles for domain"
             echo "  report <phase>           - Generate compliance report for phase"
+            echo "  init-placeholders <phase> - Initialize KB placeholders for template substitution"
+            echo "  get-placeholders          - Show current KB placeholder values"
             ;;
     esac
 }

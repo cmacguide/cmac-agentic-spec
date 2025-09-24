@@ -10,36 +10,80 @@ scripts:
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
+## Knowledge Base Integration Status
+
+**KB Integration**: {KB_REFERENCE}
+**Validation Results**: {VALIDATION_RESULT}
+**Applicable Principles**: {KB_CONTEXT}
+**Compliance Status**: ✅ PASS / ❌ FAIL / ⚠️ PARTIAL
+
 ## Execution Flow (/plan command scope)
+
 ```
-1. Load feature spec from Input path
+1. **KB Integration Setup** (MANDATORY):
+   → Source scripts/bash/knowledge-base-integration.sh
+   → KB_CONTEXT=$(get_applicable_principles "architect")
+   → KB_REFERENCE=$(query_knowledge_base "shared-principles" "architecture design patterns")
+   → VALIDATION_RESULT=$(validate_against_patterns "$INPUT_SPEC" "shared-principles")
+   → If KB unavailable: Continue with fallback guidance, note limitation
+
+2. Load feature spec from Input path
    → If not found: ERROR "No feature spec at {path}"
-2. Fill Technical Context (scan for NEEDS CLARIFICATION)
+   → Cross-reference with KB architectural patterns
+
+3. Fill Technical Context (scan for NEEDS CLARIFICATION)
    → Detect Project Type from context (web=frontend+backend, mobile=app+api)
    → Set Structure Decision based on project type
-3. Fill the Constitution Check section based on the content of the constitution document.
-4. Evaluate Constitution Check section below
+   → **Apply KB Context**: Validate tech choices against KB recommendations
+
+4. Fill the Constitution Check section based on the content of the constitution document.
+   → **Enhanced with KB**: Cross-validate constitution against KB principles
+
+5. **KB Compliance Check** (NEW):
+   → Validate planned architecture against KB patterns
+   → Document any deviations with justification
+   → Update KB Integration Status section
+
+6. Evaluate Constitution Check section below
    → If violations exist: Document in Complexity Tracking
    → If no justification possible: ERROR "Simplify approach first"
+   → **KB Enhancement**: Include KB pattern violations in evaluation
    → Update Progress Tracking: Initial Constitution Check
-5. Execute Phase 0 → research.md
+
+7. Execute Phase 0 → research.md
    → If NEEDS CLARIFICATION remain: ERROR "Resolve unknowns"
-6. Execute Phase 1 → contracts, data-model.md, quickstart.md, agent-specific template file (e.g., `CLAUDE.md` for Claude Code, `.github/copilot-instructions.md` for GitHub Copilot, `GEMINI.md` for Gemini CLI, `QWEN.md` for Qwen Code or `AGENTS.md` for opencode).
-7. Re-evaluate Constitution Check section
+   → **KB Enhancement**: Include KB research guidance
+
+8. Execute Phase 1 → contracts, data-model.md, quickstart.md, agent-specific template file
+   → **KB Enhancement**: Apply KB patterns to all artifacts
+   → Validate contracts against KB API design patterns
+   → Ensure data model follows KB domain modeling principles
+
+9. Re-evaluate Constitution Check section
    → If new violations: Refactor design, return to Phase 1
+   → **KB Enhancement**: Re-validate KB compliance
    → Update Progress Tracking: Post-Design Constitution Check
-8. Plan Phase 2 → Describe task generation approach (DO NOT create tasks.md)
-9. STOP - Ready for /tasks command
+
+10. **Final KB Compliance Validation** (NEW):
+    → Generate comprehensive KB compliance report
+    → Document all applied patterns and deviations
+    → Update KB Integration Status
+
+11. Plan Phase 2 → Describe task generation approach (DO NOT create tasks.md)
+12. STOP - Ready for /tasks command
 ```
 
 **IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed by other commands:
+
 - Phase 2: /tasks command creates tasks.md
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
+
 [Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
+
 **Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
 **Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
 **Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
@@ -50,14 +94,41 @@ scripts:
 **Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
-## Constitution Check
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+## Constitution Check with KB Integration
+
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
+
+### Constitutional Compliance
 
 [Gates determined based on constitution file]
+
+### KB Pattern Compliance
+
+**Applicable KB Patterns**: {KB_CONTEXT}
+**Pattern Validation Results**:
+
+- ✅ **Shared Principles**: {VALIDATION_RESULT}
+- ✅ **Architecture Patterns**: Compliant with KB architectural guidelines
+- ⚠️ **Domain Patterns**: Partial compliance - see deviations below
+- ❌ **Implementation Patterns**: Violations found - requires remediation
+
+### Compliance Deviations
+
+| Pattern            | Status     | Deviation                       | Justification            | Remediation Plan                   |
+| ------------------ | ---------- | ------------------------------- | ------------------------ | ---------------------------------- |
+| clean-architecture | ❌ FAIL    | Direct DB access in controllers | Performance requirements | Refactor to use repository pattern |
+| domain-modeling    | ⚠️ PARTIAL | Anemic domain model             | Legacy constraints       | Gradually enrich domain objects    |
+
+### KB References Applied
+
+- **Architecture**: {KB_REFERENCE}
+- **Design Patterns**: Applied from memory/knowledge-base/shared-principles/
+- **Best Practices**: Integrated from context-specific KB modules
 
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```
 specs/[###-feature]/
 ├── plan.md              # This file (/plan command output)
@@ -69,6 +140,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 ```
 # Option 1: Single project (DEFAULT)
 src/
@@ -108,12 +180,15 @@ ios/ or android/
 **Structure Decision**: [DEFAULT to Option 1 unless Technical Context indicates web/mobile app]
 
 ## Phase 0: Outline & Research
+
 1. **Extract unknowns from Technical Context** above:
+
    - For each NEEDS CLARIFICATION → research task
    - For each dependency → best practices task
    - For each integration → patterns task
 
 2. **Generate and dispatch research agents**:
+
    ```
    For each unknown in Technical Context:
      Task: "Research {unknown} for {feature context}"
@@ -129,24 +204,29 @@ ios/ or android/
 **Output**: research.md with all NEEDS CLARIFICATION resolved
 
 ## Phase 1: Design & Contracts
-*Prerequisites: research.md complete*
+
+_Prerequisites: research.md complete_
 
 1. **Extract entities from feature spec** → `data-model.md`:
+
    - Entity name, fields, relationships
    - Validation rules from requirements
    - State transitions if applicable
 
 2. **Generate API contracts** from functional requirements:
+
    - For each user action → endpoint
    - Use standard REST/GraphQL patterns
    - Output OpenAPI/GraphQL schema to `/contracts/`
 
 3. **Generate contract tests** from contracts:
+
    - One test file per endpoint
    - Assert request/response schemas
    - Tests must fail (no implementation yet)
 
 4. **Extract test scenarios** from user stories:
+
    - Each story → integration test scenario
    - Quickstart test = story validation steps
 
@@ -159,21 +239,24 @@ ios/ or android/
    - Keep under 150 lines for token efficiency
    - Output to repository root
 
-**Output**: data-model.md, /contracts/*, failing tests, quickstart.md, agent-specific file
+**Output**: data-model.md, /contracts/\*, failing tests, quickstart.md, agent-specific file
 
 ## Phase 2: Task Planning Approach
-*This section describes what the /tasks command will do - DO NOT execute during /plan*
+
+_This section describes what the /tasks command will do - DO NOT execute during /plan_
 
 **Task Generation Strategy**:
+
 - Load `.specify/templates/tasks-template.md` as base
 - Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
 - Each contract → contract test task [P]
-- Each entity → model creation task [P] 
+- Each entity → model creation task [P]
 - Each user story → integration test task
 - Implementation tasks to make tests pass
 
 **Ordering Strategy**:
-- TDD order: Tests before implementation 
+
+- TDD order: Tests before implementation
 - Dependency order: Models before services before UI
 - Mark [P] for parallel execution (independent files)
 
@@ -182,25 +265,45 @@ ios/ or android/
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
 ## Phase 3+: Future Implementation
-*These phases are beyond the scope of the /plan command*
+
+_These phases are beyond the scope of the /plan command_
 
 **Phase 3**: Task execution (/tasks command creates tasks.md)  
 **Phase 4**: Implementation (execute tasks.md following constitutional principles)  
 **Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
 
-## Complexity Tracking
-*Fill ONLY if Constitution Check has violations that must be justified*
+## Complexity Tracking with KB Integration
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+_Fill ONLY if Constitution Check or KB Pattern violations exist that must be justified_
 
+### Constitutional Violations
 
-## Progress Tracking
-*This checklist is updated during execution flow*
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
+
+### KB Pattern Deviations
+
+| KB Pattern         | Deviation           | Business Justification    | Technical Justification  | Mitigation Strategy        |
+| ------------------ | ------------------- | ------------------------- | ------------------------ | -------------------------- |
+| clean-architecture | Direct DB access    | Performance critical path | 50ms latency requirement | Implement caching layer    |
+| solid-principles   | Large service class | Legacy integration needs  | Monolithic external API  | Plan gradual decomposition |
+
+### Compliance Remediation Plan
+
+1. **Immediate Actions**: Address CRITICAL KB violations before Phase 1
+2. **Phase 1 Integration**: Apply KB patterns during design phase
+3. **Long-term Strategy**: Gradual alignment with KB best practices
+4. **Monitoring**: Track compliance improvements in future iterations
+
+## Progress Tracking with KB Integration
+
+_This checklist is updated during execution flow_
 
 **Phase Status**:
+
+- [ ] KB Integration Setup: Complete
 - [ ] Phase 0: Research complete (/plan command)
 - [ ] Phase 1: Design complete (/plan command)
 - [ ] Phase 2: Task planning complete (/plan command - describe approach only)
@@ -209,10 +312,26 @@ ios/ or android/
 - [ ] Phase 5: Validation passed
 
 **Gate Status**:
+
+- [ ] KB Integration: PASS
 - [ ] Initial Constitution Check: PASS
+- [ ] Initial KB Compliance Check: PASS
 - [ ] Post-Design Constitution Check: PASS
+- [ ] Final KB Compliance Validation: PASS
 - [ ] All NEEDS CLARIFICATION resolved
 - [ ] Complexity deviations documented
+- [ ] KB pattern deviations justified
+
+**KB Compliance Tracking**:
+
+- [ ] Shared principles applied
+- [ ] Context-specific patterns validated
+- [ ] Architecture patterns compliant
+- [ ] Implementation patterns ready
+- [ ] Compliance report generated
 
 ---
-*Based on Constitution v2.1.1 - See `/memory/constitution.md`*
+
+_Based on Constitution v2.1.1 - See `/memory/constitution.md`_
+_Enhanced with Knowledge Base Integration v1.0 - See `/memory/knowledge-base/`_
+_KB Compliance Report: {COMPLIANCE_REPORT_PATH}_
