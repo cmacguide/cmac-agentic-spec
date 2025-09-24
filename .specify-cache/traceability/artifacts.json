@@ -449,5 +449,27 @@
     "timestamp": "2025-09-24T19:04:20Z",
     "file_hash": "9f569b2f80ca3c14220fdf18be25b7fd39f5063bf167602a9c97c4dd9e5bf510",
     "file_size": "6893"
+  },
+  {
+    "generation_id": "20250924161133-b8f3c57b",
+    "template_id": "checkpoint_summary",
+    "phase": "checkpoints",
+    "output_path": "/home/cmac/workIA/cmac-agentic-spec/.specify-cache/checkpoints/analyze-complete-20250924161133-cd66a8a1/checkpoint_summary.md",
+    "version": "checkpoints.v1.0_20250924T191133Z",
+    "kb_context": "shared-principles backend devops-sre",
+    "timestamp": "2025-09-24T19:11:33Z",
+    "file_hash": "2dcadadb3c8c1fbd27f424bf34d350415f400ce5b03b63201c62967d7fece3ef",
+    "file_size": "11236"
+  },
+  {
+    "generation_id": "20250924161133-3ada13b5",
+    "template_id": "quality_gate_results",
+    "phase": "checkpoints",
+    "output_path": "/home/cmac/workIA/cmac-agentic-spec/.specify-cache/checkpoints/analyze-complete-20250924161133-cd66a8a1/quality_gate_results.json",
+    "version": "checkpoints.v1.0_20250924T191133Z",
+    "kb_context": "shared-principles backend devops-sre",
+    "timestamp": "2025-09-24T19:11:33Z",
+    "file_hash": "e8740df14ed58e895085ea68a4ff2d85e40ed35ce767a4b72e43b2fbbd33c6f9",
+    "file_size": "15781"
   }
 ]
