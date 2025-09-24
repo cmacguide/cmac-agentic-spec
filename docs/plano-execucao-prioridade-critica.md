@@ -122,7 +122,7 @@ validation_rules:
 
 #### Internas
 
-- **Knowledge-Base v2**: Estrutura existente em `docs/new_commands_reference/knowledge-base/`
+- **Knowledge-Base v2**: Estrutura existente em `memory/knowledge-base/`
 - **Sistema de Scripts**: `common.sh` para funções compartilhadas
 - **Sistema de Placeholders**: Extensão para `{KB_REFERENCE}`, `{VALIDATION_RESULT}`
 
