@@ -1,0 +1,288 @@
+{
+  "template_id": "compliance_check",
+  "phase": "analyze",
+  "version": "1.0",
+  "kb_integration": true,
+  "generated_at": "{TIMESTAMP}",
+  "author": "{AUTHOR}",
+  "validation_status": "{VALIDATION_STATUS}",
+  "project_name": "{PROJECT_NAME}",
+  "compliance_report": {
+    "executive_summary": {
+      "overall_status": "PARTIAL_COMPLIANCE",
+      "compliance_score": "82",
+      "critical_violations": "3",
+      "total_checks": "45"
+    },
+    "kb_integration": {
+      "kb_context": "{KB_CONTEXT}",
+      "kb_reference": "{KB_REFERENCE}",
+      "validation_result": "{VALIDATION_RESULT}",
+      "compliance_report_path": "{COMPLIANCE_REPORT_PATH}"
+    },
+    "shared_principles_compliance": {
+      "clean_code": {
+        "status": "PARTIAL",
+        "score": "78",
+        "violations": [
+          {
+            "rule": "naming_conventions",
+            "severity": "MEDIUM",
+            "file": "src/services/UserService.js",
+            "line": "45",
+            "description": "Variable name 'u' is not descriptive"
+          },
+          {
+            "rule": "function_length",
+            "severity": "HIGH",
+            "file": "src/controllers/AuthController.js",
+            "line": "120",
+            "description": "Function exceeds 50 lines (current: 78 lines)"
+          },
+          {
+            "rule": "code_duplication",
+            "severity": "MEDIUM",
+            "file": "src/utils/validation.js",
+            "line": "25",
+            "description": "Duplicated validation logic found in multiple files"
+          }
+        ]
+      },
+      "clean_architecture": {
+        "status": "PARTIAL",
+        "score": "75",
+        "violations": [
+          {
+            "rule": "dependency_rule",
+            "severity": "CRITICAL",
+            "component": "BusinessLogic",
+            "description": "Business logic depends on infrastructure layer"
+          },
+          {
+            "rule": "layer_separation",
+            "severity": "HIGH",
+            "component": "PresentationLayer",
+            "description": "Direct database access from controller layer"
+          },
+          {
+            "rule": "interface_segregation",
+            "severity": "MEDIUM",
+            "component": "DataAccess",
+            "description": "Large interface with multiple responsibilities"
+          }
+        ]
+      },
+      "solid_principles": {
+        "status": "GOOD",
+        "score": "85",
+        "violations": [
+          {
+            "principle": "Single Responsibility",
+            "severity": "MEDIUM",
+            "file": "src/models/User.js",
+            "description": "User class handles both data and validation logic"
+          },
+          {
+            "principle": "Open/Closed",
+            "severity": "LOW",
+            "file": "src/services/PaymentService.js",
+            "description": "Payment service requires modification for new payment types"
+          }
+        ]
+      }
+    },
+    "context_specific_compliance": {
+      "frontend": {
+        "applicable": "true",
+        "status": "GOOD",
+        "score": "88",
+        "patterns_checked": [
+          {
+            "pattern": "component_design",
+            "status": "PASS",
+            "violations": "0"
+          },
+          {
+            "pattern": "state_management",
+            "status": "PARTIAL",
+            "violations": "2"
+          },
+          {
+            "pattern": "performance_optimization",
+            "status": "PASS",
+            "violations": "0"
+          }
+        ]
+      },
+      "backend": {
+        "applicable": "true",
+        "status": "PARTIAL",
+        "score": "76",
+        "patterns_checked": [
+          {
+            "pattern": "domain_modeling",
+            "status": "PARTIAL",
+            "violations": "4"
+          },
+          {
+            "pattern": "api_design",
+            "status": "GOOD",
+            "violations": "1"
+          },
+          {
+            "pattern": "data_persistence",
+            "status": "PARTIAL",
+            "violations": "3"
+          }
+        ]
+      },
+      "devops_sre": {
+        "applicable": "true",
+        "status": "GOOD",
+        "score": "90",
+        "patterns_checked": [
+          {
+            "pattern": "infrastructure_as_code",
+            "status": "PASS",
+            "violations": "0"
+          },
+          {
+            "pattern": "monitoring",
+            "status": "GOOD",
+            "violations": "1"
+          },
+          {
+            "pattern": "deployment_patterns",
+            "status": "PASS",
+            "violations": "0"
+          }
+        ]
+      }
+    },
+    "detailed_analysis": {
+      "critical_issues": [
+        {
+          "id": "CRIT-001",
+          "category": "Architecture",
+          "severity": "CRITICAL",
+          "title": "Dependency Rule Violation",
+          "description": "Business logic layer directly depends on database implementation",
+          "file": "src/business/OrderProcessor.js",
+          "kb_reference": "clean-architecture/dependency-rule",
+          "remediation": "Introduce repository abstraction to decouple business logic from data access"
+        },
+        {
+          "id": "CRIT-002",
+          "category": "Security",
+          "severity": "CRITICAL",
+          "title": "Hardcoded Credentials",
+          "description": "Database credentials found in source code",
+          "file": "src/config/database.js",
+          "kb_reference": "security/credential-management",
+          "remediation": "Move credentials to environment variables or secure vault"
+        },
+        {
+          "id": "CRIT-003",
+          "category": "Performance",
+          "severity": "CRITICAL",
+          "title": "N+1 Query Problem",
+          "description": "Inefficient database queries causing performance issues",
+          "file": "src/services/ReportService.js",
+          "kb_reference": "backend/data-persistence/query-optimization",
+          "remediation": "Implement eager loading or batch queries"
+        }
+      ],
+      "high_priority_issues": [
+        {
+          "id": "HIGH-001",
+          "category": "Code Quality",
+          "severity": "HIGH",
+          "title": "Large Function Complexity",
+          "description": "Function exceeds cyclomatic complexity threshold",
+          "kb_reference": "clean-code/functions",
+          "remediation": "Break down function into smaller, focused methods"
+        },
+        {
+          "id": "HIGH-002",
+          "category": "Testing",
+          "severity": "HIGH",
+          "title": "Low Test Coverage",
+          "description": "Critical business logic lacks adequate test coverage",
+          "kb_reference": "testing/coverage-standards",
+          "remediation": "Add unit tests for core business logic"
+        }
+      ],
+      "medium_priority_issues": [
+        {
+          "id": "MED-001",
+          "category": "Documentation",
+          "severity": "MEDIUM",
+          "title": "Missing API Documentation",
+          "description": "Public APIs lack comprehensive documentation",
+          "kb_reference": "documentation/api-standards",
+          "remediation": "Add OpenAPI specifications and usage examples"
+        },
+        {
+          "id": "MED-002",
+          "category": "Code Quality",
+          "severity": "MEDIUM",
+          "title": "Code Duplication",
+          "description": "Similar logic repeated across multiple modules",
+          "kb_reference": "clean-code/dry-principle",
+          "remediation": "Extract common functionality into shared utilities"
+        }
+      ]
+    },
+    "recommendations": {
+      "immediate_actions": [
+        {
+          "priority": 1,
+          "action": "Fix critical dependency rule violations",
+          "kb_reference": "clean-architecture/dependency-rule",
+          "estimated_effort": "3 days"
+        },
+        {
+          "priority": 2,
+          "action": "Remove hardcoded credentials",
+          "kb_reference": "security/credential-management",
+          "estimated_effort": "1 day"
+        },
+        {
+          "priority": 3,
+          "action": "Optimize database queries",
+          "kb_reference": "backend/data-persistence/query-optimization",
+          "estimated_effort": "2 days"
+        }
+      ],
+      "process_improvements": [
+        {
+          "improvement": "Implement automated compliance checking in CI/CD pipeline",
+          "kb_reference": "devops-sre/quality-gates",
+          "expected_benefit": "Early detection of compliance violations"
+        },
+        {
+          "improvement": "Establish code review checklist based on KB patterns",
+          "kb_reference": "shared-principles/review-process",
+          "expected_benefit": "Consistent application of architectural principles"
+        },
+        {
+          "improvement": "Create developer training program on clean architecture",
+          "kb_reference": "clean-architecture/training",
+          "expected_benefit": "Improved team understanding of architectural principles"
+        }
+      ]
+    },
+    "metrics": {
+      "compliance_score": "82",
+      "kb_pattern_coverage": "78",
+      "violation_density": "0.67",
+      "remediation_effort": "15 days"
+    },
+    "validation_metadata": {
+      "validation_timestamp": "{TIMESTAMP}",
+      "validation_version": "1.0",
+      "kb_version": "2.0",
+      "validation_rules_count": "45"
+    }
+  }
+}

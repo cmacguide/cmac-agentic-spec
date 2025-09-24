@@ -1,0 +1,149 @@
+---
+template_id: "component_interaction_diagram"
+phase: "architect"
+version: "1.0"
+format: "mermaid"
+kb_integration: true
+auto_generated: true
+generated_at: "{TIMESTAMP}"
+author: "{AUTHOR}"
+validation_status: "{VALIDATION_STATUS}"
+---
+
+graph TD
+    %% System: {PROJECT_NAME}
+    %% Generated: {TIMESTAMP}
+    %% Phase: architect
+    %% Version: architect.v{MAJOR}.{MINOR}_{TIMESTAMP}
+    %% KB Context: {KB_CONTEXT}
+    %% KB Patterns Applied: Clean Architecture, SOLID Principles, DDD
+
+    %% Core Components
+    A[Presentation Layer] --> B[Application Layer]
+    B --> C[Domain Layer]
+    C --> D[Infrastructure Layer]
+
+    %% External Systems
+    E[External API] --> A
+    F[Database] --> D
+    G[Message Queue] --> D
+
+    %% Clean Architecture Layers
+    subgraph "Presentation Layer"
+        A1[Controllers]
+        A2[View Models]
+        A3[API Endpoints]
+    end
+
+    subgraph "Application Layer"
+        B1[Use Cases]
+        B2[Application Services]
+        B3[DTOs]
+    end
+
+    subgraph "Domain Layer"
+        C1[Domain Entities]
+        C2[Domain Services]
+        C3[Value Objects]
+        C4[Domain Events]
+    end
+
+    subgraph "Infrastructure Layer"
+        D1[Repositories]
+        D2[External Services]
+        D3[Data Access]
+        D4[Event Handlers]
+    end
+
+    %% Component Interactions
+    A1 --> B1
+    A2 --> B2
+    A3 --> B1
+    
+    B1 --> C1
+    B2 --> C2
+    B3 --> C1
+    
+    C1 --> D1
+    C2 --> D2
+    C4 --> D4
+    
+    D1 --> F
+    D2 --> E
+    D4 --> G
+
+    %% Cross-cutting Concerns
+    H[Logging Service] -.-> A1
+    H -.-> B1
+    H -.-> C2
+    H -.-> D1
+
+    I[Security Service] -.-> A1
+    I -.-> B1
+    I -.-> B2
+
+    J[Monitoring Service] -.-> A1
+    J -.-> B1
+    J -.-> C2
+    J -.-> D1
+
+    %% KB Compliance Indicators
+    classDef kbCompliant fill:#90EE90,stroke:#006400,stroke-width:2px
+    classDef kbPartial fill:#FFE4B5,stroke:#FF8C00,stroke-width:2px
+    classDef kbNonCompliant fill:#FFB6C1,stroke:#DC143C,stroke-width:2px
+
+    class A1,B1,C1,D1 kbCompliant
+    class A2,B2,C2 kbPartial
+    class A3,D2 kbNonCompliant
+
+    %% Legend
+    subgraph "KB Compliance Legend"
+        P[Fully Compliant]:::kbCompliant
+        Q[Partially Compliant]:::kbPartial
+        R[Non-Compliant]:::kbNonCompliant
+    end
+
+    %% Data Flow Indicators
+    A1 -.->|HTTP Request| B1
+    B1 -.->|Business Logic| C2
+    C2 -.->|Data Access| D1
+    D1 -.->|SQL Query| F
+
+    %% Event Flow
+    C1 -.->|Domain Event| C4
+    C4 -.->|Event Handler| D4
+    D4 -.->|Message| G
+
+    %% Security Flow
+    A1 -.->|Authentication| I
+    I -.->|Authorization| B1
+    B1 -.->|Security Context| C2
+
+    %% Monitoring Flow
+    A1 -.->|Metrics| J
+    B1 -.->|Performance| J
+    D1 -.->|Database Metrics| J
+
+    %% Error Handling Flow
+    D1 -.->|Exceptions| C2
+    C2 -.->|Business Errors| B1
+    B1 -.->|Error Response| A1
+
+    %% Configuration Flow
+    K[Configuration Service] -.-> A1
+    K -.-> B1
+    K -.-> D1
+
+    %% Dependency Injection Flow
+    L[DI Container] -.-> A1
+    L -.-> B1
+    L -.-> C2
+    L -.-> D1
+
+    %% Metadata
+    %% KB_REFERENCE: {KB_REFERENCE}
+    %% VALIDATION_RESULT: {VALIDATION_RESULT}
+    %% COMPLIANCE_REPORT: {COMPLIANCE_REPORT_PATH}
+    %% Architecture Pattern: Clean Architecture with DDD
+    %% Compliance Score: 85%
+    %% Last Updated: {TIMESTAMP}

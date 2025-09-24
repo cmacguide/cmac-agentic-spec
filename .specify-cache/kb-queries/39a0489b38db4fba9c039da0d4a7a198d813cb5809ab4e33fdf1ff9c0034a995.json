@@ -1,0 +1,8 @@
+## Basic Frontend Development Guidance
+
+- Focus on component reusability and maintainability
+- Implement proper state management patterns
+- Optimize for user experience and performance
+- Ensure accessibility compliance (WCAG guidelines)
+- Use responsive design principles
+- Minimize bundle size and optimize loading times
