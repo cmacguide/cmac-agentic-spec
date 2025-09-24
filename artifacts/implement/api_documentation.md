@@ -3,7 +3,7 @@ template_id: "api_documentation"
 phase: "implement"
 version: "1.0"
 kb_integration: true
-generated_at: "2025-09-24T18:19:16Z"
+generated_at: "2025-09-24T18:48:19Z"
 author: "sdd-system"
 validation_status: "PENDING"
 ---
@@ -11,9 +11,9 @@ validation_status: "PENDING"
 # API Documentation
 
 **Project**: {PROJECT*NAME}  
-**Generated**: 2025-09-24T18:19:16Z  
+**Generated**: 2025-09-24T18:48:19Z  
 **Phase**: implement  
-**Version**: implement.v1.0*2025-09-24T18:19:16Z
+**Version**: implement.v1.0*2025-09-24T18:48:19Z
 
 ## Overview
 
@@ -27,7 +27,7 @@ This document provides comprehensive documentation for the cmac-agentic-spec API
 - **Protocol**: HTTPS only
 - **Content Type**: `application/json`
 - **API Version**: v1.0
-- **Documentation Version**: implement.v1.0\_2025-09-24T18:19:16Z
+- **Documentation Version**: implement.v1.0\_2025-09-24T18:48:19Z
 
 ### Knowledge Base Integration
 
