@@ -1,7 +1,0 @@
-## Basic Software Engineering Principles
-
-- Apply SOLID principles (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion)
-- Use clear, descriptive naming for variables, functions, and classes
-- Keep functions small and focused on a single task
-- Write self-documenting code with minimal but effective comments
-- Follow consistent code formatting and style guidelines
