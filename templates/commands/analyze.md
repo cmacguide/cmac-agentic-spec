@@ -17,6 +17,31 @@ STRICTLY READ-ONLY: Do **not** modify any files. Output a structured analysis re
 
 Constitution Authority: The project constitution (`/memory/constitution.md`) is **non-negotiable** within this analysis scope. Constitution conflicts are automatically CRITICAL and require adjustment of the spec, plan, or tasks—not dilution, reinterpretation, or silent ignoring of the principle. If a principle itself needs to change, that must occur in a separate, explicit constitution update outside `/analyze`.
 
+## Artifact Generation Setup (MANDATORY)
+
+**CRITICAL**: Before proceeding with analysis, MUST initialize artifact generation system:
+
+1. **Source Artifact Generation Module**:
+
+   ```bash
+   source scripts/bash/artifact-generation.sh
+   ```
+
+2. **Initialize Analysis Artifacts**:
+
+   ```bash
+   ARTIFACT_CONTEXT="${ARGUMENTS:-analyze}"
+   ARTIFACT_PHASE="analyze"
+   ```
+
+3. **Prepare Analysis Artifacts**:
+
+   ```bash
+   # Generate analysis artifacts automatically
+   echo "Generating analysis artifacts..."
+   generate_phase_artifacts "$ARTIFACT_PHASE" "$ARTIFACT_CONTEXT"
+   ```
+
 ## Knowledge Base Integration (MANDATORY)
 
 **CRITICAL**: Before proceeding with analysis, MUST execute KB integration for contextual validation:
@@ -164,8 +189,13 @@ Constitution Authority: The project constitution (`/memory/constitution.md`) is 
      - Duplication Count
      - Critical Issues Count
      - KB Violations Count
+   - **Artifact Generation Summary**:
+     - Total Artifacts Generated: 4
+     - Artifact Status: ✅ ALL GENERATED / ⚠️ PARTIAL / ❌ FAILED
+     - Traceability: [generation IDs and versions]
+     - KB Compliance: [compliance percentages per artifact]
 
-8. **Enhanced Next Actions with KB Guidance**:
+8. **Enhanced Next Actions with KB Guidance and Artifact References**:
 
    - If CRITICAL issues exist (including KB violations): Recommend resolving before `/implement`.
    - If only LOW/MEDIUM: User may proceed, but provide improvement suggestions with KB references.
@@ -174,8 +204,13 @@ Constitution Authority: The project constitution (`/memory/constitution.md`) is 
      - "Run /plan to adjust architecture following KB guidance Y"
      - "Apply KB pattern Z to resolve consistency issues"
      - "Manually edit tasks.md to add coverage for 'performance-metrics' per KB standards"
+   - **Artifact References**:
+     - "Review detailed analysis in `artifacts/analyze/architecture_assessment.md`"
+     - "Check compliance details in `artifacts/analyze/compliance_check.json`"
+     - "See KB references in `artifacts/analyze/knowledge_base_references.md`"
+     - "Review technical debt in `artifacts/analyze/technical_debt_report.md`"
 
-9. **KB-Aware Remediation Offer**: Ask the user: "Would you like me to suggest concrete remediation edits for the top N issues, including KB pattern applications?" (Do NOT apply them automatically.)
+9. **KB-Aware Remediation Offer with Artifact Context**: Ask the user: "Would you like me to suggest concrete remediation edits for the top N issues, including KB pattern applications? All analysis details are available in the generated artifacts in `artifacts/analyze/` directory." (Do NOT apply them automatically.)
 
 Behavior rules:
 

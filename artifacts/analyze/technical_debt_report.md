@@ -3,7 +3,7 @@ template_id: "technical_debt_report"
 phase: "analyze"
 version: "1.0"
 kb_integration: true
-generated_at: "2025-09-24T18:06:27Z"
+generated_at: "2025-09-24T19:03:49Z"
 author: "sdd-system"
 validation_status: "PENDING"
 ---
@@ -11,9 +11,9 @@ validation_status: "PENDING"
 # Technical Debt Report
 
 **Project**: cmac-agentic-spec  
-**Generated**: 2025-09-24T18:06:27Z  
+**Generated**: 2025-09-24T19:03:49Z  
 **Phase**: analyze  
-**Version**: analyze.v1.0\*2025-09-24T18:06:27Z
+**Version**: analyze.v1.0\*2025-09-24T19:03:49Z
 
 ## Executive Summary
 

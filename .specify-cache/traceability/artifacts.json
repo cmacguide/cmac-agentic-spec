@@ -361,5 +361,93 @@
     "timestamp": "2025-09-24T18:48:20Z",
     "file_hash": "10b3d6e66db790916181e3ee40cbc07c3fa787315f1bfd4ed7faa61fd6b9b9f7",
     "file_size": "20091"
+  },
+  {
+    "generation_id": "20250924160348-eab69797",
+    "template_id": "compliance_check",
+    "phase": "analyze",
+    "output_path": "/home/cmac/workIA/cmac-agentic-spec/artifacts/analyze/compliance_check.json",
+    "version": "analyze.v1.0_20250924T190348Z",
+    "kb_context": "shared-principles backend devops-sre backend/domain-modeling",
+    "timestamp": "2025-09-24T19:03:48Z",
+    "file_hash": "f4c9cf768a878f2b150de84918fda2c5816587ce5b7610d92235b04f8411d754",
+    "file_size": "9374"
+  },
+  {
+    "generation_id": "20250924160348-13536a12",
+    "template_id": "knowledge_base_references",
+    "phase": "analyze",
+    "output_path": "/home/cmac/workIA/cmac-agentic-spec/artifacts/analyze/knowledge_base_references.md",
+    "version": "analyze.v1.0_20250924T190349Z",
+    "kb_context": "shared-principles backend devops-sre backend/domain-modeling",
+    "timestamp": "2025-09-24T19:03:49Z",
+    "file_hash": "d8339999afb5b8b2e1597bd432015b011860b12ac92bfdf87e24eedff3cdd2ae",
+    "file_size": "9258"
+  },
+  {
+    "generation_id": "20250924160349-96998ae5",
+    "template_id": "architecture_assessment",
+    "phase": "analyze",
+    "output_path": "/home/cmac/workIA/cmac-agentic-spec/artifacts/analyze/architecture_assessment.md",
+    "version": "analyze.v1.0_20250924T190349Z",
+    "kb_context": "shared-principles backend devops-sre backend/domain-modeling",
+    "timestamp": "2025-09-24T19:03:49Z",
+    "file_hash": "f90e8816c6388c8d802fcf2cecddde3b6224962e397bd92565d730ac51d83656",
+    "file_size": "5924"
+  },
+  {
+    "generation_id": "20250924160349-266a4773",
+    "template_id": "technical_debt_report",
+    "phase": "analyze",
+    "output_path": "/home/cmac/workIA/cmac-agentic-spec/artifacts/analyze/technical_debt_report.md",
+    "version": "analyze.v1.0_20250924T190349Z",
+    "kb_context": "shared-principles backend devops-sre backend/domain-modeling",
+    "timestamp": "2025-09-24T19:03:49Z",
+    "file_hash": "40ec9e68552ab69e4cef67f3a51ec4eb2219cfc8df50178c32bc2edd17a577f4",
+    "file_size": "8646"
+  },
+  {
+    "generation_id": "20250924160420-7bfd8a5b",
+    "template_id": "component_interaction_diagram",
+    "phase": "architect",
+    "output_path": "/home/cmac/workIA/cmac-agentic-spec/artifacts/architect/component_interaction_diagram.mmd",
+    "version": "architect.v1.0_20250924T190420Z",
+    "kb_context": "shared-principles backend devops-sre backend/api-design",
+    "timestamp": "2025-09-24T19:04:20Z",
+    "file_hash": "281646a03034559abeaef34df1b8fb207ccf63cb668d678e18c9db21d7f58e45",
+    "file_size": "3344"
+  },
+  {
+    "generation_id": "20250924160420-8c75ff91",
+    "template_id": "validation_report",
+    "phase": "architect",
+    "output_path": "/home/cmac/workIA/cmac-agentic-spec/artifacts/architect/validation_report.md",
+    "version": "architect.v1.0_20250924T190420Z",
+    "kb_context": "shared-principles backend devops-sre backend/api-design",
+    "timestamp": "2025-09-24T19:04:20Z",
+    "file_hash": "a79f8d893f7cd294630b300ab599c60b109592f42261bc5afa9a4c4742fd566e",
+    "file_size": "12153"
+  },
+  {
+    "generation_id": "20250924160420-b3158a36",
+    "template_id": "system_design_document",
+    "phase": "architect",
+    "output_path": "/home/cmac/workIA/cmac-agentic-spec/artifacts/architect/system_design_document.md",
+    "version": "architect.v1.0_20250924T190420Z",
+    "kb_context": "shared-principles backend devops-sre backend/api-design",
+    "timestamp": "2025-09-24T19:04:20Z",
+    "file_hash": "0d2f69dfa4a492ea4d2e370e78d3babb61489c0ad079a9ea22776eea6db0494e",
+    "file_size": "15647"
+  },
+  {
+    "generation_id": "20250924160420-cc81cf84",
+    "template_id": "architecture_decision_record",
+    "phase": "architect",
+    "output_path": "/home/cmac/workIA/cmac-agentic-spec/artifacts/architect/architecture_decision_record.md",
+    "version": "architect.v1.0_20250924T190420Z",
+    "kb_context": "shared-principles backend devops-sre backend/api-design",
+    "timestamp": "2025-09-24T19:04:20Z",
+    "file_hash": "9f569b2f80ca3c14220fdf18be25b7fd39f5063bf167602a9c97c4dd9e5bf510",
+    "file_size": "6893"
   }
 ]

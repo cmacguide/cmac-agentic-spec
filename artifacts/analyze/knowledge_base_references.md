@@ -4,7 +4,7 @@ phase: "analyze"
 version: "1.0"
 kb_integration: true
 auto_generated: true
-generated_at: "2025-09-24T18:06:27Z"
+generated_at: "2025-09-24T19:03:48Z"
 author: "sdd-system"
 validation_status: "PENDING"
 ---
@@ -12,9 +12,9 @@ validation_status: "PENDING"
 # Knowledge Base References - Analyze Phase
 
 **Project**: cmac-agentic-spec  
-**Generated**: 2025-09-24T18:06:27Z  
+**Generated**: 2025-09-24T19:03:48Z  
 **Phase**: analyze  
-**Version**: analyze.v1.0\*2025-09-24T18:06:27Z
+**Version**: analyze.v1.0\*2025-09-24T19:03:48Z
 
 ## KB Integration Summary
 
@@ -252,7 +252,7 @@ validation_status: "PENDING"
 
 ### Generation Details
 
-- **Generated At**: 2025-09-24T18:06:27Z
+- **Generated At**: 2025-09-24T19:03:48Z
 - **KB Integration Version**: v1.0
 - **Total KB References**: 24
 - **Validation Rules Applied**: 45

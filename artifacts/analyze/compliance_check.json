@@ -3,7 +3,7 @@
   "phase": "analyze",
   "version": "1.0",
   "kb_integration": true,
-  "generated_at": "2025-09-24T18:06:27Z",
+  "generated_at": "2025-09-24T19:03:48Z",
   "author": "sdd-system",
   "validation_status": "PENDING",
   "project_name": "cmac-agentic-spec",
@@ -279,7 +279,7 @@
       "remediation_effort": "15 days"
     },
     "validation_metadata": {
-      "validation_timestamp": "2025-09-24T18:06:27Z",
+      "validation_timestamp": "2025-09-24T19:03:48Z",
       "validation_version": "1.0",
       "kb_version": "2.0",
       "validation_rules_count": "45"
