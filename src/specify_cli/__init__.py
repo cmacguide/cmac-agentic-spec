@@ -30,8 +30,12 @@ import tempfile
 import shutil
 import shlex
 import json
+import hashlib
+import time
+import logging
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Any
 
 import typer
 import httpx
@@ -52,6 +56,189 @@ import truststore
 
 ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 client = httpx.Client(verify=ssl_context)
+
+# Cache configuration
+CACHE_MAX_AGE_HOURS = 24
+CACHE_CLEANUP_DAYS = 30
+CACHE_MAX_SIZE_MB = 500
+
+# Setup logging for cache operations
+logging.basicConfig(level=logging.INFO)
+cache_logger = logging.getLogger('specify_cache')
+
+def get_cache_dir() -> Path:
+    """Get the cache directory for Specify CLI."""
+    try:
+        from platformdirs import user_cache_dir
+        cache_dir = Path(user_cache_dir("specify-cli", "github"))
+    except ImportError:
+        # Fallback if platformdirs is not available
+        cache_dir = Path.home() / ".specify-cli" / "cache"
+    
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    return cache_dir
+
+def _calculate_checksum(file_path: Path) -> str:
+    """Calculate SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        cache_logger.warning(f"Failed to calculate checksum for {file_path}: {e}")
+        return ""
+
+def cache_template(version: str, ai_assistant: str, script_type: str, zip_path: Path, metadata: Dict[str, Any]) -> bool:
+    """Cache a downloaded template."""
+    try:
+        cache_dir = get_cache_dir()
+        template_cache_dir = cache_dir / "templates" / version
+        template_cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create cache filename
+        cache_filename = f"spec-kit-template-{ai_assistant}-{script_type}.zip"
+        cached_zip_path = template_cache_dir / cache_filename
+        
+        # Copy the zip file to cache
+        shutil.copy2(zip_path, cached_zip_path)
+        
+        # Calculate checksum
+        checksum = _calculate_checksum(cached_zip_path)
+        
+        # Create metadata with checksum and timestamp
+        cache_metadata = {
+            **metadata,
+            "ai_assistant": ai_assistant,
+            "script_type": script_type,
+            "cached_at": datetime.now().isoformat(),
+            "checksum": checksum,
+            "file_size": cached_zip_path.stat().st_size
+        }
+        
+        # Save metadata
+        metadata_path = template_cache_dir / f"{cache_filename}.metadata.json"
+        with open(metadata_path, 'w') as f:
+            json.dump(cache_metadata, f, indent=2)
+        
+        cache_logger.info(f"Cached template {ai_assistant}-{script_type} version {version}")
+        return True
+        
+    except Exception as e:
+        cache_logger.error(f"Failed to cache template: {e}")
+        return False
+
+def get_cached_template(version: str, ai_assistant: str, script_type: str) -> Optional[Tuple[Path, Dict[str, Any]]]:
+    """Get a cached template if available and valid."""
+    try:
+        cache_dir = get_cache_dir()
+        template_cache_dir = cache_dir / "templates" / version
+        
+        if not template_cache_dir.exists():
+            return None
+        
+        cache_filename = f"spec-kit-template-{ai_assistant}-{script_type}.zip"
+        cached_zip_path = template_cache_dir / cache_filename
+        metadata_path = template_cache_dir / f"{cache_filename}.metadata.json"
+        
+        if not cached_zip_path.exists() or not metadata_path.exists():
+            return None
+        
+        # Load metadata
+        with open(metadata_path, 'r') as f:
+            metadata = json.load(f)
+        
+        # Verify checksum
+        current_checksum = _calculate_checksum(cached_zip_path)
+        if current_checksum != metadata.get("checksum", ""):
+            cache_logger.warning(f"Checksum mismatch for cached template {cache_filename}")
+            return None
+        
+        cache_logger.info(f"Found valid cached template {ai_assistant}-{script_type} version {version}")
+        return cached_zip_path, metadata
+        
+    except Exception as e:
+        cache_logger.error(f"Failed to get cached template: {e}")
+        return None
+
+def is_cache_valid(version: str, ai_assistant: str, script_type: str, max_age_hours: int = CACHE_MAX_AGE_HOURS) -> bool:
+    """Check if cached template is valid (exists and not expired)."""
+    try:
+        cache_dir = get_cache_dir()
+        template_cache_dir = cache_dir / "templates" / version
+        
+        if not template_cache_dir.exists():
+            return False
+        
+        cache_filename = f"spec-kit-template-{ai_assistant}-{script_type}.zip"
+        metadata_path = template_cache_dir / f"{cache_filename}.metadata.json"
+        
+        if not metadata_path.exists():
+            return False
+        
+        # Load metadata and check age
+        with open(metadata_path, 'r') as f:
+            metadata = json.load(f)
+        
+        cached_at_str = metadata.get("cached_at")
+        if not cached_at_str:
+            return False
+        
+        cached_at = datetime.fromisoformat(cached_at_str)
+        age = datetime.now() - cached_at
+        
+        return age < timedelta(hours=max_age_hours)
+        
+    except Exception as e:
+        cache_logger.error(f"Failed to check cache validity: {e}")
+        return False
+
+def clear_cache(older_than_days: int = CACHE_CLEANUP_DAYS) -> int:
+    """Clear old cache entries. Returns number of entries cleared."""
+    try:
+        cache_dir = get_cache_dir()
+        templates_dir = cache_dir / "templates"
+        
+        if not templates_dir.exists():
+            return 0
+        
+        cleared_count = 0
+        cutoff_time = datetime.now() - timedelta(days=older_than_days)
+        
+        for version_dir in templates_dir.iterdir():
+            if not version_dir.is_dir():
+                continue
+            
+            # Check all metadata files in this version directory
+            should_clear_version = True
+            for metadata_file in version_dir.glob("*.metadata.json"):
+                try:
+                    with open(metadata_file, 'r') as f:
+                        metadata = json.load(f)
+                    
+                    cached_at_str = metadata.get("cached_at")
+                    if cached_at_str:
+                        cached_at = datetime.fromisoformat(cached_at_str)
+                        if cached_at > cutoff_time:
+                            should_clear_version = False
+                            break
+                except Exception:
+                    continue
+            
+            if should_clear_version:
+                try:
+                    shutil.rmtree(version_dir)
+                    cleared_count += 1
+                    cache_logger.info(f"Cleared cache for version {version_dir.name}")
+                except Exception as e:
+                    cache_logger.error(f"Failed to clear cache for {version_dir.name}: {e}")
+        
+        return cleared_count
+        
+    except Exception as e:
+        cache_logger.error(f"Failed to clear cache: {e}")
+        return 0
 
 def _github_token(cli_token: str | None = None) -> str | None:
     """Return sanitized GitHub token (cli arg takes precedence) or None."""
@@ -431,15 +618,19 @@ def init_git_repo(project_path: Path, quiet: bool = False) -> bool:
         os.chdir(original_cwd)
 
 
-def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Tuple[Path, dict]:
+def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None, use_cache: bool = True) -> Tuple[Path, dict]:
     repo_owner = "github"
     repo_name = "spec-kit"
     if client is None:
         client = httpx.Client(verify=ssl_context)
     
+    # First, try to get release information to determine version
     if verbose:
         console.print("[cyan]Fetching latest release information...[/cyan]")
     api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
+    
+    release_data = None
+    version = "latest"  # fallback version
     
     try:
         response = client.get(
@@ -456,12 +647,41 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
             raise RuntimeError(msg)
         try:
             release_data = response.json()
+            version = release_data.get("tag_name", "latest")
         except ValueError as je:
             raise RuntimeError(f"Failed to parse release JSON: {je}\nRaw (truncated 400): {response.text[:400]}")
     except Exception as e:
+        if use_cache:
+            # Try to use cached version if network fails
+            cache_logger.info("Network error, attempting to use cached template")
+            cached_result = get_cached_template("latest", ai_assistant, script_type)
+            if cached_result:
+                cached_zip_path, cached_metadata = cached_result
+                # Copy cached file to download directory
+                filename = cached_zip_path.name
+                zip_path = download_dir / filename
+                shutil.copy2(cached_zip_path, zip_path)
+                if verbose:
+                    console.print(f"[yellow]Using cached template:[/yellow] {filename}")
+                return zip_path, cached_metadata
+        
         console.print(f"[red]Error fetching release information[/red]")
         console.print(Panel(str(e), title="Fetch Error", border_style="red"))
         raise typer.Exit(1)
+    
+    # Check cache first if enabled
+    if use_cache and is_cache_valid(version, ai_assistant, script_type):
+        cached_result = get_cached_template(version, ai_assistant, script_type)
+        if cached_result:
+            cached_zip_path, cached_metadata = cached_result
+            # Copy cached file to download directory
+            filename = cached_zip_path.name
+            zip_path = download_dir / filename
+            shutil.copy2(cached_zip_path, zip_path)
+            if verbose:
+                console.print(f"[green]Using cached template:[/green] {filename}")
+                console.print(f"[cyan]Cached version:[/cyan] {cached_metadata.get('release', version)}")
+            return zip_path, cached_metadata
     
     # Find the template asset for the specified AI assistant
     assets = release_data.get("assets", [])
@@ -534,16 +754,27 @@ def download_template_from_github(ai_assistant: str, download_dir: Path, *, scri
         raise typer.Exit(1)
     if verbose:
         console.print(f"Downloaded: {filename}")
+    
     metadata = {
         "filename": filename,
         "size": file_size,
         "release": release_data["tag_name"],
         "asset_url": download_url
     }
+    
+    # Cache the downloaded template if caching is enabled
+    if use_cache:
+        try:
+            cache_success = cache_template(version, ai_assistant, script_type, zip_path, metadata)
+            if cache_success and verbose:
+                cache_logger.info(f"Template cached successfully for {ai_assistant}-{script_type} version {version}")
+        except Exception as e:
+            cache_logger.warning(f"Failed to cache template: {e}")
+    
     return zip_path, metadata
 
 
-def download_and_extract_template(project_path: Path, ai_assistant: str, script_type: str, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Path:
+def download_and_extract_template(project_path: Path, ai_assistant: str, script_type: str, is_current_dir: bool = False, *, verbose: bool = True, tracker: StepTracker | None = None, client: httpx.Client = None, debug: bool = False, github_token: str = None, use_cache: bool = True) -> Path:
     """Download the latest release and extract it to create a new project.
     Returns project_path. Uses tracker if provided (with keys: fetch, download, extract, cleanup)
     """
@@ -757,6 +988,7 @@ def init(
     skip_tls: bool = typer.Option(False, "--skip-tls", help="Skip SSL/TLS verification (not recommended)"),
     debug: bool = typer.Option(False, "--debug", help="Show verbose diagnostic output for network and extraction failures"),
     github_token: str = typer.Option(None, "--github-token", help="GitHub token to use for API requests (or set GH_TOKEN or GITHUB_TOKEN environment variable)"),
+    no_cache: bool = typer.Option(False, "--no-cache", help="Disable template caching and always download fresh"),
 ):
     """
     Initialize a new Specify project from the latest template.
@@ -965,7 +1197,7 @@ def init(
             local_ssl_context = ssl_context if verify else False
             local_client = httpx.Client(verify=local_ssl_context)
 
-            download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token)
+            download_and_extract_template(project_path, selected_ai, selected_script, here, verbose=False, tracker=tracker, client=local_client, debug=debug, github_token=github_token, use_cache=not no_cache)
 
             # Ensure scripts are executable (POSIX)
             ensure_executable_scripts(project_path, tracker=tracker)
@@ -1124,6 +1356,109 @@ def check():
     if not (claude_ok or gemini_ok or cursor_ok or qwen_ok or windsurf_ok or kilocode_ok or opencode_ok or codex_ok or auggie_ok):
         console.print("[dim]Tip: Install an AI assistant for the best experience[/dim]")
 
+@app.command()
+def cache(
+    clear: bool = typer.Option(False, "--clear", help="Clear old cache entries"),
+    clear_all: bool = typer.Option(False, "--clear-all", help="Clear all cache entries"),
+    info: bool = typer.Option(False, "--info", help="Show cache information"),
+    older_than_days: int = typer.Option(CACHE_CLEANUP_DAYS, "--older-than-days", help="Clear cache entries older than specified days"),
+):
+    """
+    Manage template cache.
+    
+    Examples:
+        specify cache --info                    # Show cache information
+        specify cache --clear                   # Clear old cache entries (default: 30 days)
+        specify cache --clear --older-than-days 7  # Clear entries older than 7 days
+        specify cache --clear-all               # Clear all cache entries
+    """
+    show_banner()
+    
+    if clear_all:
+        console.print("[yellow]Clearing all cache entries...[/yellow]")
+        try:
+            cache_dir = get_cache_dir()
+            if cache_dir.exists():
+                shutil.rmtree(cache_dir)
+                cache_dir.mkdir(parents=True, exist_ok=True)
+                console.print("[green]✓[/green] All cache entries cleared")
+            else:
+                console.print("[dim]Cache directory does not exist[/dim]")
+        except Exception as e:
+            console.print(f"[red]Error clearing cache:[/red] {e}")
+            raise typer.Exit(1)
+    
+    elif clear:
+        console.print(f"[yellow]Clearing cache entries older than {older_than_days} days...[/yellow]")
+        try:
+            cleared_count = clear_cache(older_than_days)
+            if cleared_count > 0:
+                console.print(f"[green]✓[/green] Cleared {cleared_count} cache entries")
+            else:
+                console.print("[dim]No old cache entries found[/dim]")
+        except Exception as e:
+            console.print(f"[red]Error clearing cache:[/red] {e}")
+            raise typer.Exit(1)
+    
+    elif info:
+        console.print("[bold]Cache Information[/bold]\n")
+        try:
+            cache_dir = get_cache_dir()
+            console.print(f"[cyan]Cache directory:[/cyan] {cache_dir}")
+            
+            if not cache_dir.exists():
+                console.print("[dim]Cache directory does not exist[/dim]")
+                return
+            
+            templates_dir = cache_dir / "templates"
+            if not templates_dir.exists():
+                console.print("[dim]No cached templates found[/dim]")
+                return
+            
+            # Count cache entries and calculate total size
+            total_entries = 0
+            total_size = 0
+            version_info = []
+            
+            for version_dir in templates_dir.iterdir():
+                if not version_dir.is_dir():
+                    continue
+                
+                version_entries = 0
+                version_size = 0
+                
+                for zip_file in version_dir.glob("*.zip"):
+                    if zip_file.is_file():
+                        version_entries += 1
+                        version_size += zip_file.stat().st_size
+                
+                if version_entries > 0:
+                    total_entries += version_entries
+                    total_size += version_size
+                    version_info.append({
+                        "version": version_dir.name,
+                        "entries": version_entries,
+                        "size": version_size
+                    })
+            
+            console.print(f"[cyan]Total cached templates:[/cyan] {total_entries}")
+            console.print(f"[cyan]Total cache size:[/cyan] {total_size / (1024*1024):.1f} MB")
+            console.print(f"[cyan]Cache max age:[/cyan] {CACHE_MAX_AGE_HOURS} hours")
+            console.print(f"[cyan]Auto cleanup after:[/cyan] {CACHE_CLEANUP_DAYS} days")
+            
+            if version_info:
+                console.print("\n[bold]Cached versions:[/bold]")
+                for info in sorted(version_info, key=lambda x: x["version"]):
+                    size_mb = info["size"] / (1024*1024)
+                    console.print(f"  [cyan]{info['version']}[/cyan]: {info['entries']} templates ({size_mb:.1f} MB)")
+        
+        except Exception as e:
+            console.print(f"[red]Error getting cache info:[/red] {e}")
+            raise typer.Exit(1)
+    
+    else:
+        console.print("[yellow]No action specified. Use --info, --clear, or --clear-all[/yellow]")
+        console.print("Run 'specify cache --help' for more options")
 
 def main():
     app()
