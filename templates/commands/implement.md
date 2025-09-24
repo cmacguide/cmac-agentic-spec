@@ -213,3 +213,56 @@ At completion, generate and display:
 **Artifact Generation**: This command now includes automatic generation of rich implementation artifacts (code quality reports, test coverage, performance benchmarks, and API documentation) with full KB integration and traceability. All artifacts are automatically generated during the implementation process and stored in the `artifacts/implement/` directory with complete version control and compliance tracking.
 
 **System Integration**: The implementation process now seamlessly integrates with the SDD v2.0 Artifact Generation System, providing comprehensive documentation, metrics, and traceability for all implementation activities while maintaining full compatibility with existing workflows.
+
+## Quality Gate and Checkpoint Integration (MANDATORY)
+
+**CRITICAL**: After completing implementation, MUST execute quality gate validation and checkpoint creation:
+
+1. **Execute Quality Gate Validation**:
+
+   ```bash
+   source scripts/bash/checkpoint-system.sh
+   QUALITY_GATE_RESULT=$(validate_quality_gate "implement")
+   QUALITY_GATE_STATUS=$(extract_quality_gate_status "$QUALITY_GATE_RESULT")
+   ```
+
+2. **Create Checkpoint on Success**:
+
+   ```bash
+   if [[ "$QUALITY_GATE_STATUS" = "PASS" ]]; then
+     CHECKPOINT_RESULT=$(create_checkpoint "implement_complete" "implement" "Implementation phase completed successfully")
+     echo "✅ Implementation checkpoint created successfully"
+   else
+     echo "❌ Quality gate failed - implementation requires remediation before proceeding"
+     echo "Quality Gate Details: $QUALITY_GATE_RESULT"
+     echo "🔄 Available rollback options:"
+     list_checkpoints "architect"
+   fi
+   ```
+
+3. **Final Implementation Report with Checkpoint Status**:
+
+   Include in the implementation completion report:
+
+   #### Quality Gate and Checkpoint Status
+
+   - **Quality Gate Status**: ✅ PASS / ❌ FAIL / ⚠️ PARTIAL
+   - **Checkpoint Created**: [checkpoint_id] / N/A (if failed)
+   - **Snapshot Path**: [snapshot_path] / N/A (if failed)
+   - **Ready for Production**: ✅ YES / ❌ NO
+
+   #### Implementation Quality Metrics
+
+   | Metric                 | Target        | Actual  | Status   |
+   | ---------------------- | ------------- | ------- | -------- |
+   | Code Quality Score     | > 8           | [value] | ✅/⚠️/❌ |
+   | Test Coverage          | > 85%         | [value] | ✅/⚠️/❌ |
+   | Performance Benchmarks | Within Limits | [value] | ✅/⚠️/❌ |
+   | Documentation Complete | 100%          | [value] | ✅/⚠️/❌ |
+
+   #### Checkpoint and Rollback Information
+
+   - **Current Checkpoint**: [checkpoint_id]
+   - **Previous Checkpoint**: [previous_checkpoint_id]
+   - **Rollback Available**: ✅ YES (to architect phase)
+   - **Backup Created**: [backup_id] (if rollback needed)

@@ -220,4 +220,48 @@ Behavior rules:
 - LIMIT total findings in the main table to 50; aggregate remainder in a summarized overflow note.
 - If zero issues found, emit a success report with coverage statistics and proceed recommendation.
 
+## Quality Gate and Checkpoint Integration (MANDATORY)
+
+**CRITICAL**: After completing analysis, MUST execute quality gate validation and checkpoint creation:
+
+1. **Execute Quality Gate Validation**:
+
+   ```bash
+   source scripts/bash/checkpoint-system.sh
+   QUALITY_GATE_RESULT=$(validate_quality_gate "analyze")
+   QUALITY_GATE_STATUS=$(extract_quality_gate_status "$QUALITY_GATE_RESULT")
+   ```
+
+2. **Create Checkpoint on Success**:
+
+   ```bash
+   if [[ "$QUALITY_GATE_STATUS" = "PASS" ]]; then
+     CHECKPOINT_RESULT=$(create_checkpoint "analyze_complete" "analyze" "Analysis phase completed successfully")
+     echo "✅ Analysis checkpoint created successfully"
+   else
+     echo "❌ Quality gate failed - analysis requires remediation before proceeding"
+     echo "Quality Gate Details: $QUALITY_GATE_RESULT"
+   fi
+   ```
+
+3. **Final Analysis Report with Checkpoint Status**:
+
+   Include in the analysis report:
+
+   #### Quality Gate and Checkpoint Status
+
+   - **Quality Gate Status**: ✅ PASS / ❌ FAIL / ⚠️ PARTIAL
+   - **Checkpoint Created**: [checkpoint_id] / N/A (if failed)
+   - **Snapshot Path**: [snapshot_path] / N/A (if failed)
+   - **Next Phase Approved**: ✅ YES / ❌ NO
+
+   #### Checkpoint Information
+
+   | Metric              | Value        | Status      |
+   | ------------------- | ------------ | ----------- |
+   | Artifacts Generated | 4/4          | ✅ COMPLETE |
+   | KB Compliance       | [percentage] | ✅/⚠️/❌    |
+   | Quality Metrics     | [score]      | ✅/⚠️/❌    |
+   | Phase Requirements  | [status]     | ✅/⚠️/❌    |
+
 Context: {ARGS}

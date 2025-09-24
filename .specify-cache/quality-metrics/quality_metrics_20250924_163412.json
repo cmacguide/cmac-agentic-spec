@@ -1,0 +1,30 @@
+{
+  "generated_at": "2025-09-24T19:34:12Z",
+  "report_version": "1.0",
+  "system_version": "SDD v2.0",
+  "phases": {
+    "analyze": {
+  "artifacts_count": 4,
+  "kb_compliance": "low",
+  "quality_gate_status": "fail",
+  "last_updated": "2025-09-24T19:34:12Z"
+},
+    "architect": {
+  "artifacts_count": 4,
+  "kb_compliance": "low",
+  "quality_gate_status": "unknown",
+  "last_updated": "2025-09-24T19:34:12Z"
+},
+    "implement": {
+  "artifacts_count": 4,
+  "kb_compliance": "low",
+  "quality_gate_status": "fail",
+  "last_updated": "2025-09-24T19:34:12Z"
+}
+  },
+  "overall_metrics": {
+    "total_artifacts": 16,
+    "total_checkpoints": 1,
+    "system_health": "healthy"
+  }
+}

@@ -228,22 +228,55 @@ COMPLIANCE_REPORT=$(validate_against_patterns($CURRENT_DESIGN, $KB_CONTEXT))
 validate_generated_artifacts("architect", $ARTIFACT_CONTEXT)
 ```
 
-### **Fase 4: Quality Gate e Checkpoint com Artifact Summary**
+### **Fase 4: Quality Gate e Checkpoint com Artifact Summary (Automático)**
 
 ```bash
+# Integração automática com sistema de checkpoints
+source scripts/bash/checkpoint-system.sh
+
 # Validação obrigatória com artefatos
-QUALITY_GATE_RESULT=$(validate_quality_gate("post_architect"))
+QUALITY_GATE_RESULT=$(validate_quality_gate "architect")
+QUALITY_GATE_STATUS=$(extract_quality_gate_status "$QUALITY_GATE_RESULT")
 ARTIFACT_SUMMARY=$(generate_phase_summary "architect" "$ARTIFACT_CONTEXT")
 
-if [ "$QUALITY_GATE_RESULT" = "PASS" ]; then
-  create_checkpoint("architect_complete")
+if [[ "$QUALITY_GATE_STATUS" = "PASS" ]]; then
+  CHECKPOINT_RESULT=$(create_checkpoint "architect_complete" "architect" "Architecture phase completed successfully")
   echo "✅ Architect phase completed successfully"
   echo "📊 Artifacts generated: $ARTIFACT_SUMMARY"
+  echo "🎯 Checkpoint created: $(echo "$CHECKPOINT_RESULT" | jq -r '.checkpoint_id')"
 else
-  trigger_rollback("previous_checkpoint")
-  echo "❌ Quality gate failed - rollback initiated"
+  echo "❌ Quality gate failed - architecture requires remediation"
+  echo "Quality Gate Details: $QUALITY_GATE_RESULT"
+  echo "🔄 Available rollback options:"
+  list_checkpoints "analyze"
 fi
 ```
+
+#### **Quality Gate Report Integration**
+
+At completion, include in architect report:
+
+##### **Quality Gate and Checkpoint Status**
+
+- **Quality Gate Status**: ✅ PASS / ❌ FAIL / ⚠️ PARTIAL
+- **Checkpoint Created**: [checkpoint_id] / N/A (if failed)
+- **Snapshot Path**: [snapshot_path] / N/A (if failed)
+- **Next Phase Approved**: ✅ YES / ❌ NO
+
+##### **Architecture Quality Metrics**
+
+| Metric                | Target | Actual  | Status   |
+| --------------------- | ------ | ------- | -------- |
+| Design Consistency    | > 90%  | [value] | ✅/⚠️/❌ |
+| Pattern Compliance    | 100%   | [value] | ✅/⚠️/❌ |
+| KB Reference Coverage | > 80%  | [value] | ✅/⚠️/❌ |
+| ADR Completeness      | 100%   | [value] | ✅/⚠️/❌ |
+
+##### **Rollback Information**
+
+- **Previous Checkpoint**: [checkpoint_id] (if rollback needed)
+- **Backup Created**: [backup_id] (if rollback executed)
+- **Recovery Options**: [available_checkpoints]
 
 ## 📋 **Integração com Architecture Guidelines**
 
