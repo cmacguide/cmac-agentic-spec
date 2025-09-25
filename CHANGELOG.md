@@ -4,6 +4,12 @@
 
 All notable changes to the Specify CLI will be documented in this file.
 
+## [0.0.18] - 2025-09-25
+
+### Added
+
+- Environment variable overrides for template source repository: `SPECIFY_TEMPLATE_REPO_OWNER` and `SPECIFY_TEMPLATE_REPO_NAME` allowing users to pull release assets from forks or custom repositories without patching the CLI.
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -13,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - New `/clarify` command template to surface up to 5 targeted clarification questions for an existing spec and persist answers into a Clarifications section in the spec.
 - New `/analyze` command template providing a non-destructive cross-artifact discrepancy and alignment report (spec, clarifications, plan, tasks, constitution) inserted after `/tasks` and before `/implement`.
-	- Note: Constitution rules are explicitly treated as non-negotiable; any conflict is a CRITICAL finding requiring artifact remediation, not weakening of principles.
+  - Note: Constitution rules are explicitly treated as non-negotiable; any conflict is a CRITICAL finding requiring artifact remediation, not weakening of principles.
 
 ## [0.0.16] - 2025-09-22
 
@@ -89,7 +95,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated command instructions in the CLI.
 - Cleaned up the code to not render agent-specific information when it's generic.
-
 
 ## [0.0.6] - 2025-09-17
 

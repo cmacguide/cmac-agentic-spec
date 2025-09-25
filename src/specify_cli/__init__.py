@@ -619,8 +619,18 @@ def init_git_repo(project_path: Path, quiet: bool = False) -> bool:
 
 
 def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None, use_cache: bool = True) -> Tuple[Path, dict]:
-    repo_owner = "cmacguide"
-    repo_name = "cmac-agentic-spec"
+    """Download latest template release asset for given AI assistant.
+
+    Environment overrides:
+      SPECIFY_TEMPLATE_REPO_OWNER -> owner (default: github)
+      SPECIFY_TEMPLATE_REPO_NAME  -> name  (default: spec-kit)
+
+    These allow testing/fork usage without patching the codebase.
+    """
+    repo_owner = (os.getenv("SPECIFY_TEMPLATE_REPO_OWNER") or "github").strip() or "github"
+    repo_name = (os.getenv("SPECIFY_TEMPLATE_REPO_NAME") or "spec-kit").strip() or "spec-kit"
+    if verbose:
+        console.print(f"[dim]Template source:[/dim] {repo_owner}/{repo_name}")
     if client is None:
         client = httpx.Client(verify=ssl_context)
     
