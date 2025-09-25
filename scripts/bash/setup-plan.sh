@@ -24,7 +24,22 @@ for arg in "$@"; do
 done
 
 # Get script directory and load common functions
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Use robust script path detection
+if [[ -n "${BASH_SOURCE[0]:-}" ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+    # Fallback for release environments
+    SCRIPT_DIR="$(cd "$(dirname "${0:-$PWD}")" && pwd)"
+    # If common.sh not found, try common locations
+    if [[ ! -f "$SCRIPT_DIR/common.sh" ]]; then
+        for possible_dir in ".specify/scripts" "scripts/bash" "../bash" "."; do
+            if [[ -f "$possible_dir/common.sh" ]]; then
+                SCRIPT_DIR="$(cd "$possible_dir" && pwd)"
+                break
+            fi
+        done
+    fi
+fi
 source "$SCRIPT_DIR/common.sh"
 
 # Get all paths and variables from common functions
