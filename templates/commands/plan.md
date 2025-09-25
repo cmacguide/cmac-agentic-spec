@@ -17,10 +17,11 @@ Given the implementation details provided as an argument, do this:
 
 **CRITICAL**: Before proceeding with planning, MUST execute KB integration for architectural validation:
 
-1. **Source KB Integration Module**:
+1. **Source KB Integration Module (robusto)**:
 
    ```bash
-   source scripts/bash/knowledge-base-integration.sh
+   # Tenta .specify/scripts/ (pacote) ou scripts/ (dev)
+   source scripts/bash/include-kb.sh
    ```
 
 2. **Query KB for Planning Context**:
