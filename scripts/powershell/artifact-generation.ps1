@@ -3,7 +3,29 @@
 # Part of SDD v2.0 Critical Systems Implementation
 
 # Import dependencies
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# Use robust script path detection
+try {
+    if ($MyInvocation.MyCommand.Path) {
+        $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+    } elseif ($PSScriptRoot) {
+        $ScriptDir = $PSScriptRoot
+    } else {
+        # Fallback for release environments
+        $ScriptDir = Split-Path -Parent $PSCommandPath
+    }
+} catch {
+    # Ultimate fallback - search for common.ps1 in common locations
+    $ScriptDir = Get-Location
+    $commonLocations = @(".specify/scripts", "scripts/powershell", "../powershell", ".")
+    foreach ($location in $commonLocations) {
+        $testPath = Join-Path $location "common.ps1"
+        if (Test-Path $testPath) {
+            $ScriptDir = Resolve-Path $location
+            break
+        }
+    }
+}
+
 . "$ScriptDir\common.ps1"
 . "$ScriptDir\knowledge-base-integration.ps1"
 

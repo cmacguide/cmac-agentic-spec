@@ -8,28 +8,7 @@ param(
 )
 
 # Test configuration
-# Get script directory with robust fallback
-try {
-    if ($MyInvocation.MyCommand.Path) {
-        $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    } elseif ($PSScriptRoot) {
-        $ScriptDir = $PSScriptRoot
-    } else {
-        # Fallback for release environments
-        $ScriptDir = Split-Path -Parent $PSCommandPath
-    }
-} catch {
-    # Ultimate fallback - search for dependencies in common locations
-    $ScriptDir = Get-Location
-    $commonLocations = @(".specify/scripts", "scripts/powershell", "../powershell", ".")
-    foreach ($location in $commonLocations) {
-        $testPath = Join-Path $location "common.ps1"
-        if (Test-Path $testPath) {
-            $ScriptDir = Resolve-Path $location
-            break
-        }
-    }
-}
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = Split-Path -Parent (Split-Path -Parent $ScriptDir)
 $TestOutputDir = Join-Path $RepoRoot ".specify-cache\test-results"
 $TestArtifactsDir = Join-Path $RepoRoot ".specify-cache\test-artifacts"

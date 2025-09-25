@@ -75,7 +75,22 @@ EOF
 done
 
 # Source common functions
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get script directory with robust fallback
+if [[ -n "${BASH_SOURCE[0]:-}" ]]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+    # Fallback for release environments
+    SCRIPT_DIR="$(cd "$(dirname "${0:-$PWD}")" && pwd)"
+    # If dependencies not found, try common locations
+    if [[ ! -f "$SCRIPT_DIR/common.sh" && ! -f "$SCRIPT_DIR/knowledge-base-integration.sh" ]]; then
+        for possible_dir in ".specify/scripts" "scripts/bash" "../bash" "."; do
+            if [[ -f "$possible_dir/common.sh" || -f "$possible_dir/knowledge-base-integration.sh" ]]; then
+                SCRIPT_DIR="$(cd "$possible_dir" && pwd)"
+                break
+            fi
+        done
+    fi
+fi
 source "$SCRIPT_DIR/common.sh"
 
 # Get feature paths and validate branch
